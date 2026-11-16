@@ -11,8 +11,9 @@ into the JSON shape the seed script expects.
 - Dedupes poems by a hash of the *cleaned* Simplified content (same as
   prisma/seed.ts computes), so copies that differ only in notes collapse.
 - Converts title/content/poet bios to Simplified Chinese for display.
-- Scores `fame` from membership in curated anthologies (唐诗三百首, 千家诗)
-  plus a poet-level prior. The rank/ search-hit counts are no longer used:
+- Scores `fame` from membership in curated anthologies (唐诗三百首, 千家诗),
+  a poet-level prior, and 古诗文网 reader star counts (from the older
+  dataset in prisma/data/raw/LCPoetry*.json). The rank/ search-hit counts are no longer used:
   they come from unquoted title+author searches, so generic titles like
   句 or 又歌 score 10^8 while 登鸛雀樓 scores ~2000 on Baidu. `stars`
   stays a pure in-app favorite counter.
@@ -41,6 +42,8 @@ from tang_cleaning import (
 )
 
 RAW_DIR = Path(__file__).parent.parent / "prisma" / "data" / "raw" / "tang"
+# The older 古诗文网 scrape, used only for its star counts.
+GUSHIWEN_DIR = RAW_DIR.parent
 OUT_DIR = Path(__file__).parent.parent / "prisma" / "data" / "cleaned" / "tang"
 AUDIT_DIR = Path(__file__).parent.parent / "prisma" / "data" / "audit" / "tang"
 
@@ -174,6 +177,52 @@ def load_anthologies(known_authors: set[str]) -> tuple[list[dict], Counter]:
     return entries, poet_counts
 
 
+def load_gushiwen_stars(known_authors: set[str]) -> list[dict]:
+    """
+    Star counts from the older 古诗文网 dataset (prisma/data/raw/LCPoetry*.json),
+    as entries in the same shape as load_anthologies(), plus `stars`.
+
+    Stars are 古诗文网 readers' votes, so they measure modern familiarity
+    (将进酒 32,615; median 1), unlike anthology membership. Only the star count
+    is used; the site's translations and commentary are not carried over.
+    """
+    poet_files = sorted(GUSHIWEN_DIR.glob("LCPoetry*.json"))
+    if not poet_files:
+        print("  warning: no LCPoetry*.json in prisma/data/raw -- gushiwen_stars will be 0")
+        return []
+    poet_names = {
+        p["objectId"]: p["name"] for p in load_json(GUSHIWEN_DIR / "LCPoet.json")
+    }
+
+    entries = []
+    for path in poet_files:
+        for item in load_json(path):
+            # 全唐诗 includes Five Dynasties poets (李煜, 和凝), so 五代 counts too.
+            if item.get("dynasty") not in ("唐代", "五代"):
+                continue
+            poet = poet_names.get((item.get("poet") or {}).get("objectId"))
+            lines = item.get("content", "").split("\n")
+            # Skip a leading prose preface (琵琶行's 元和十年，予左迁…): 全唐诗
+            # moves it to the notes, so the verse starts on a later line. A
+            # line of verse here is at most two 7-character couplets (32
+            # characters with punctuation). Blank lines after it go too.
+            while len(lines) > 1 and (
+                not lines[0].strip() or len(lines[0].strip()) > 32
+            ):
+                lines = lines[1:]
+            entries.append(
+                {
+                    "anthology": "古诗文网",
+                    "id": None,
+                    "poet": t2s.convert(normalize_author(poet, known_authors)),
+                    "key": simplified_key(lines),
+                    "tags": [],
+                    "stars": item.get("star") or 0,
+                }
+            )
+    return entries
+
+
 class AnthologyMatcher:
     """
     Finds the anthology entries a 全唐诗 poem corresponds to.
@@ -201,10 +250,22 @@ class AnthologyMatcher:
             e = self.by_id[poem_id]
             found[id(e)] = e
         matched_anthologies = {e["anthology"] for e in found.values()}
+        # SequenceMatcher caches its analysis of seq2, so the poem's key goes
+        # there and each candidate in seq1. The cheap upper bounds
+        # (real_quick_ratio, quick_ratio) skip most candidates before the
+        # full ratio(), which matters for poets with ~1,000 古诗文网 entries.
+        matcher = SequenceMatcher(None)
+        matcher.set_seq2(key)
+        threshold = self.FUZZY_THRESHOLD
         for e in self.by_poet.get(poet, []):
             if e["anthology"] in matched_anthologies or len(key) < 8:
                 continue
-            if SequenceMatcher(None, key, e["key"]).ratio() >= self.FUZZY_THRESHOLD:
+            matcher.set_seq1(e["key"])
+            if (
+                matcher.real_quick_ratio() >= threshold
+                and matcher.quick_ratio() >= threshold
+                and matcher.ratio() >= threshold
+            ):
                 found[id(e)] = e
         return list(found.values())
 
@@ -218,10 +279,46 @@ def fame_score(signals: dict) -> int:
         "in_qianjia":   bool,  # poem is in 千家诗
         "poet_anthology_poems": int,  # how many of this poet's poems are
                                       # in either anthology (李白 ~40, most 0)
+        "gushiwen_stars": int,  # 古诗文网 reader votes for this poem: 0 for
+                                # ~15,000 unmatched poems, median 1, 173
+                                # poems >= 1,000, max 32,615 (将进酒)
     }
     """
     # TODO(human)
     return 0
+
+
+def choose_attribution(copies: list[dict]) -> tuple[dict, str]:
+    """
+    Pick the copy to keep among identical poems (same contentHash).
+
+    全唐诗 often prints one poem under two poets (互见诗): 登鹳雀楼 under
+    王之涣 and, as 登楼, under 朱斌. Keeping the first copy in corpus order
+    showed 登鹳雀楼 as 朱斌's. Each copy is scored by evidence for *its*
+    attribution, strongest first:
+
+    1. an anthology lists the poem under this copy's poet;
+    2. 古诗文网 lists it under this poet (higher star count wins);
+    3. a named poet beats 佚名.
+
+    Ties keep the first copy, as before. Returns (copy, reason).
+    """
+    def evidence(copy: dict) -> tuple[bool, int, bool]:
+        poet = copy["poet"]
+        own_anthology = any(e["poet"] == poet for e in copy["matches"])
+        own_stars = max(
+            (e["stars"] for e in copy["star_matches"] if e["poet"] == poet), default=0
+        )
+        return own_anthology, own_stars, poet != UNKNOWN_POET_NAME
+
+    scores = [evidence(c) for c in copies]
+    best = max(range(len(copies)), key=lambda i: scores[i])  # first max wins ties
+    if best == 0:
+        return copies[0], "first copy"
+    own_anthology, own_stars, _ = scores[best]
+    if own_anthology:
+        return copies[best], "anthology"
+    return copies[best], "古诗文网" if own_stars else "named poet"
 
 
 def main():
@@ -240,12 +337,23 @@ def main():
         print(f"  {name}: {count} Tang poems")
     matched_entries = set()
 
-    seen_hashes = set()
+    print("Loading 古诗文网 star counts...")
+    star_entries = load_gushiwen_stars(known_authors)
+    # A separate matcher: these aren't anthologies, so they must not feed
+    # poet_counts or the anthology tags.
+    star_matcher = AnthologyMatcher(star_entries)
+    print(f"  {len(star_entries)} Tang and Five Dynasties poems")
+    matched_star_entries = set()
+
     cleaned_poems = []
     stats = Counter()
     tag_set = set()
     review = []  # poems whose cleaned text still looks suspicious
+    attributions = []  # duplicate groups credited to more than one poet
 
+    # Pass 1: clean every copy and group identical poems by contentHash
+    # (dicts keep insertion order, so groups stay in corpus order).
+    groups: dict[str, list[dict]] = {}
     for poem in raw_poems:
         title, title_notes = clean_title(poem.get("title", ""))
         content, content_notes = clean_content(poem.get("paragraphs", []))
@@ -254,22 +362,64 @@ def main():
             continue
 
         title, content = t2s.convert(title), t2s.convert(content)
-        c_hash = content_hash(content)
-        if c_hash in seen_hashes:
-            stats["duplicates"] += 1
-            continue
-        seen_hashes.add(c_hash)
-
-        raw_author = poem.get("author")
-        canonical = normalize_author(raw_author, known_authors)
-        poet_name = t2s.convert(canonical)
-        if poet_name not in poets:
-            stats["unrecognized_author"] += 1
+        poet_name = t2s.convert(normalize_author(poem.get("author"), known_authors))
+        unrecognized = poet_name not in poets
+        if unrecognized:
             poet_name = UNKNOWN_POET_NAME
+
+        key = first_line_key(content)
+        groups.setdefault(content_hash(content), []).append(
+            {
+                "raw_title": poem.get("title", ""),
+                "title": title,
+                "title_notes": title_notes,
+                "content": content,
+                "content_notes": content_notes,
+                "poet": poet_name,
+                "unrecognized": unrecognized,
+                "matches": matcher.match(poem.get("id"), key, poet_name),
+                "star_matches": star_matcher.match(None, key, poet_name),
+            }
+        )
+
+    # Pass 2: one poem per group, from the copy whose attribution has the
+    # most evidence (see choose_attribution).
+    for c_hash, copies in groups.items():
+        stats["duplicates"] += len(copies) - 1
+        copy, reason = choose_attribution(copies)
+        other_poets = sorted(
+            {(c["poet"], c["title"]) for c in copies if c["poet"] != copy["poet"]}
+        )
+        if other_poets:
+            attributions.append(
+                {
+                    "kept": {"poet": copy["poet"], "title": copy["title"]},
+                    "reason": reason,
+                    "others": [{"poet": p, "title": t} for p, t in other_poets],
+                    "content": copy["content"][:60],
+                }
+            )
+            stats["reattributed"] += reason != "first copy"
+
+        title, content, poet_name = copy["title"], copy["content"], copy["poet"]
+        title_notes, content_notes = copy["title_notes"], copy["content_notes"]
+        stats["unrecognized_author"] += copy["unrecognized"]
         if poet_name == UNKNOWN_POET_NAME:
             stats["unknown_author"] += 1
 
-        matches = matcher.match(poem.get("id"), first_line_key(content), poet_name)
+        matches = copy["matches"]
+        # A first line matched under another poet is usually 互见诗, one poem
+        # credited to two poets (朱斌's 登楼 is 王之涣's 登鹳雀楼). The stars
+        # belong to the attribution readers know, so they're kept only if the
+        # entry's poet is this poet, or not a local poet at all (a spelling
+        # variant such as 顾夐 for 顾敻). An entry with no poet on 古诗文网
+        # (normalized to 佚名) says nothing about attribution, so it's kept.
+        star_matches = [
+            e
+            for e in copy["star_matches"]
+            if e["poet"] in (poet_name, UNKNOWN_POET_NAME) or e["poet"] not in poets
+        ]
+        matched_star_entries.update(id(e) for e in star_matches)
         matched_entries.update(id(e) for e in matches)
         in_anthology = {e["anthology"] for e in matches}
         anthology_tags = sorted({t for e in matches for t in e["tags"]})
@@ -281,13 +431,18 @@ def main():
             "poet_anthology_poems": (
                 poet_counts.get(poet_name, 0) if poet_name != UNKNOWN_POET_NAME else 0
             ),
+            # The site sometimes lists a poem twice; take the higher count.
+            "gushiwen_stars": max((e["stars"] for e in star_matches), default=0),
         }
+        stats["with_stars"] += signals["gushiwen_stars"] > 0
         stats["in_tang300"] += signals["in_tang300"]
         stats["in_qianjia"] += signals["in_qianjia"]
 
         notes = [t2s.convert(n) for n in title_notes + content_notes]
+        # Keep the other attributions rather than silently dropping them.
+        notes += [f"互见{p}《{t}》" for p, t in other_poets]
         stats["title_cleaned"] += bool(title_notes) or title != t2s.convert(
-            poem.get("title", "")
+            copy["raw_title"]
         )
         stats["content_notes_stripped"] += bool(content_notes)
 
@@ -336,6 +491,10 @@ def main():
         f"({stats['duplicates']} duplicates, {stats['empty']} empty after cleaning)"
     )
     print(
+        f"  {len(attributions)} duplicates credited to more than one poet; "
+        f"{stats['reattributed']} kept a later copy on evidence"
+    )
+    print(
         f"  {stats['title_cleaned']} titles cleaned, "
         f"{stats['content_notes_stripped']} poems had notes stripped from content"
     )
@@ -346,6 +505,10 @@ def main():
     print(
         f"  {stats['in_tang300']} poems matched 唐诗三百首, {stats['in_qianjia']} matched 千家诗; "
         f"{len(anthology_entries) - len(matched_entries)} anthology entries found no poem"
+    )
+    print(
+        f"  {stats['with_stars']} poems matched 古诗文网 star counts; "
+        f"{len(star_entries) - len(matched_star_entries)} 古诗文网 poems found no poem"
     )
     print(f"  {len(review)} poems flagged for manual review")
 
@@ -364,6 +527,9 @@ def main():
     # Reports for manual review; never loaded into the DB.
     write(AUDIT_DIR, "review.json", review)
     write(AUDIT_DIR, "author_list.json", authors_list)
+    # Changed decisions first: those are the ones worth checking.
+    attributions.sort(key=lambda a: a["reason"] == "first copy")
+    write(AUDIT_DIR, "duplicate_attributions.json", attributions)
 
     print(f"\nSaved cleaned data to {OUT_DIR}")
     print(f"Saved audit reports to {AUDIT_DIR}")

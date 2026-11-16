@@ -127,10 +127,21 @@ def has_cjk(text: str) -> bool:
 
 
 def first_line_key(text: str) -> str:
-    """CJK-only first line, used to match the same poem across sources
-    whose titles differ (千家诗 calls 春曉 "春眠")."""
-    first = text.split("\n", 1)[0]
-    return _NON_CJK_RE.sub("", first)
+    """CJK-only first sentence, used to match the same poem across sources
+    whose titles differ (千家诗 calls 春曉 "春眠").
+
+    Cut at a sentence end (。？！) as well as the first line break: sources
+    break lines differently (全唐诗 has one couplet per line, 古诗文网 often
+    two), but a sentence ends in the same place in every source. A question
+    can end mid-couplet (何处秋风至？萧萧送鴈群。), so sentences are added
+    until the key holds at least one five-character couplet."""
+    first_line = text.split("\n", 1)[0]
+    key = ""
+    for sentence in re.split(r"[。？！?!]", first_line):
+        key += _NON_CJK_RE.sub("", sentence)
+        if len(key) >= 10:
+            break
+    return key
 
 
 def clean_title(raw: str) -> tuple[str, list[str]]:
