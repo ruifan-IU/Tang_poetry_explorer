@@ -89,7 +89,7 @@ def poet_fame(name: str, signals: dict) -> float:
     return (score_poem + (score_poem * score_sl) / 2) * 100 / 3
 
 
-def poem_fame(signals: dict, poet_score: int) -> int:
+def poem_fame(signals: dict, poet_score: float) -> float:
     """
     0-100 fame for a poem, given its own signals and its poet's fame.
 
@@ -102,7 +102,18 @@ def poem_fame(signals: dict, poet_score: int) -> int:
     }
     poet_score is poet_fame() for this poem's poet.
     """
-    return 0
+    MAX_GUSHIWEN_STARS = 32000
+    WEIGHT = 0.085
+
+    score_in_anthology = 1 if signals["in_tang300"] or signals["in_qianjia"] else 0
+
+    score_gushiwen_stars = score_conversion(
+        signals["gushiwen_stars"], MAX_GUSHIWEN_STARS
+    )
+
+    poem_score = (score_in_anthology + score_gushiwen_stars) / 2
+
+    return poem_score * 100 + WEIGHT * poet_score * (1 - poem_score)
 
 
 def main() -> None:

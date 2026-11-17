@@ -302,6 +302,148 @@ def choose_attribution(copies: list[dict]) -> tuple[dict, str]:
     return copies[best], "古诗文网" if own_stars else "named poet"
 
 
+# The 乐府诗集 categories 全唐诗 prefixes to the titles of its 乐府 chapters,
+# where it reprints poems that also appear under their poet: 鼓吹曲辞 将进酒
+# is 李白's 将进酒 again.
+YUEFU_CATEGORIES = (
+    "郊庙歌辞", "燕射歌辞", "鼓吹曲辞", "横吹曲辞", "相和歌辞", "清商曲辞",
+    "舞曲歌辞", "琴曲歌辞", "杂曲歌辞", "近代曲辞", "杂歌谣辞", "新乐府辞",
+    "凯乐歌辞",
+)
+YUEFU_TITLE_RE = re.compile(rf"^(?:{'|'.join(YUEFU_CATEGORIES)}) ")
+
+
+def near_duplicate_groups(
+    entry_poems: dict[int, tuple[dict, list[int]]], poems: list[dict]
+) -> list[dict]:
+    """
+    Group poems that matched the same anthology or 古诗文网 entry.
+
+    Most groups are one poem printed twice (a 乐府 reprint, or 子夜四时歌 /
+    子夜吴歌), but some are distinct poems with similar openings, such as
+    poems in a numbered series. `similarity` (each poem's full-text ratio
+    against the group's first poem) separates the two.
+    """
+    groups = []
+    seen = set()
+    for entry, indexes in entry_poems.values():
+        group = tuple(sorted(set(indexes)))
+        # An anthology entry and a star entry often find the same pair.
+        if len(group) < 2 or group in seen:
+            continue
+        seen.add(group)
+        base = poems[group[0]]["content"]
+        groups.append(
+            {
+                "entry": entry,
+                "indexes": group,
+                "similarity": [
+                    round(SequenceMatcher(None, base, poems[i]["content"]).ratio(), 2)
+                    for i in group
+                ],
+            }
+        )
+    return groups
+
+
+def choose_reprint_to_keep(members: list[dict], similarity: list[float]) -> int | None:
+    """
+    Decide whether a near-duplicate group is one poem printed more than once,
+    and if so which copy to keep.
+
+    members:    the group's cleaned poems, in corpus order (title, poetName,
+                content, fameSignals, ...)
+    similarity: similarity[i] is members[i]'s full-text ratio against
+                members[0], so similarity[0] is always 1.0
+    Returns the position in `members` of the copy to keep, or None to leave
+    the group as separate poems. YUEFU_TITLE_RE.match(title) tells a 乐府
+    reprint's title (鼓吹曲辞 将进酒) from a plain one.
+    """
+    if not members or len(members) != len(similarity):
+        return None
+
+    poet = members[0]["poetName"]
+    plain_copy = None
+    yuefu_copies = 0
+    for i, (member, ratio) in enumerate(zip(members, similarity)):
+        if member["poetName"] != poet or ratio < 0.9:
+            return None
+        if YUEFU_TITLE_RE.match(member["title"]):
+            yuefu_copies += 1
+        elif plain_copy is None:
+            plain_copy = i
+        else:
+            return None
+
+    return plain_copy if yuefu_copies and plain_copy is not None else None
+
+
+def merge_reprints(groups: list[dict], poems: list[dict]) -> dict[int, int]:
+    """
+    Merge the groups choose_reprint_to_keep() accepts into the kept copy.
+
+    The kept poem takes the strongest fame signals of the group (a 乐府 copy
+    may be the one that matched an anthology) and notes each dropped title as
+    又见《…》, so the reprint stays findable. Returns {dropped: kept} indexes.
+    """
+    dropped: dict[int, int] = {}
+    for group in groups:
+        indexes = group["indexes"]
+        members = [poems[i] for i in indexes]
+        keep = choose_reprint_to_keep(members, group["similarity"])
+        if keep is None or indexes[keep] in dropped:
+            continue
+        kept = poems[indexes[keep]]
+        for i in indexes:
+            if i == indexes[keep] or i in dropped:
+                continue
+            other = poems[i]
+            ks, os_ = kept["fameSignals"], other["fameSignals"]
+            ks["in_tang300"] |= os_["in_tang300"]
+            ks["in_qianjia"] |= os_["in_qianjia"]
+            ks["gushiwen_stars"] = max(ks["gushiwen_stars"], os_["gushiwen_stars"])
+            kept["tags"] = sorted(set(kept["tags"]) | set(other["tags"]))
+            # Attribution notes describe the poem, not this printing of it.
+            carried = [n for n in other["notes"] if n.startswith(("互见", "又见"))]
+            for note in [f"又见《{other['title']}》"] + carried:
+                if note not in kept["notes"]:
+                    kept["notes"].append(note)
+            dropped[i] = indexes[keep]
+    return dropped
+
+
+def near_duplicate_report(
+    groups: list[dict], poems: list[dict], dropped: dict[int, int]
+) -> list[dict]:
+    """
+    The groups as an audit report: unmerged groups first (those still need a
+    decision), then by star count, so the ones users would see come first.
+    """
+    report = []
+    for group in groups:
+        members = [poems[i] for i in group["indexes"]]
+        report.append(
+            {
+                "matchedBy": group["entry"]["anthology"],
+                "merged": any(i in dropped for i in group["indexes"]),
+                "samePoet": len({p["poetName"] for p in members}) == 1,
+                "maxStars": max(p["fameSignals"]["gushiwen_stars"] for p in members),
+                "poems": [
+                    {
+                        "title": p["title"],
+                        "poet": p["poetName"],
+                        "similarity": sim,
+                        "dropped": i in dropped,
+                        "content": p["content"][:60],
+                    }
+                    for i, p, sim in zip(group["indexes"], members, group["similarity"])
+                ],
+            }
+        )
+    report.sort(key=lambda g: (g["merged"], -g["maxStars"]))
+    return report
+
+
 def main():
     print("Loading poets...")
     poets, known_authors, alternative_names = load_poets()
@@ -331,6 +473,11 @@ def main():
     tag_set = set()
     review = []  # poems whose cleaned text still looks suspicious
     attributions = []  # duplicate groups credited to more than one poet
+    # Anthology or 古诗文网 entry -> indexes of the cleaned poems it matched.
+    # Exact copies share a contentHash and are merged above, but variant
+    # copies (异文, or 乐府 reprints such as 鼓吹曲辞 将进酒) get their own
+    # hash. The matcher tolerates variants, so they meet again here.
+    entry_poems: dict[int, tuple[dict, list[int]]] = {}
 
     # Pass 1: clean every copy and group identical poems by contentHash
     # (dicts keep insertion order, so groups stay in corpus order).
@@ -423,6 +570,8 @@ def main():
             copy["raw_title"]
         )
         stats["content_notes_stripped"] += bool(content_notes)
+        for e in matches + star_matches:
+            entry_poems.setdefault(id(e), (e, []))[1].append(len(cleaned_poems))
 
         missing_ratio = content.count(MISSING_GLYPH) / len(content)
         # 《》 is legitimate in verse (童子解吟《长恨曲》), so not checked.
@@ -451,6 +600,27 @@ def main():
                 "fameSignals": signals,  # scored by score_fame.py
             }
         )
+
+    # Pass 3: merge variant copies of one poem (乐府 reprints) that exact
+    # dedup can't see. Done after pass 2 so a merged poem keeps the best fame
+    # signals of its copies.
+    groups = near_duplicate_groups(entry_poems, cleaned_poems)
+    dropped = merge_reprints(groups, cleaned_poems)
+    near_duplicates = near_duplicate_report(groups, cleaned_poems, dropped)
+    cleaned_poems = [p for i, p in enumerate(cleaned_poems) if i not in dropped]
+    # A poem 全唐诗 printed only in its 乐府 chapters had no plain copy to
+    # keep (孟郊's 杂曲歌辞 游子吟). The category is a chapter heading, not
+    # part of the title, so it moves to the notes. This runs after the merge,
+    # which needs the prefix to tell a reprint from its plain copy.
+    for poem in cleaned_poems:
+        # Headings can nest: 舞曲歌辞 凯乐歌辞 应圣期.
+        categories = []
+        while prefix := YUEFU_TITLE_RE.match(poem["title"]):
+            categories.append(prefix.group(0).strip())
+            poem["title"] = poem["title"][prefix.end():]
+        if categories:
+            poem["notes"].insert(0, "·".join(["乐府"] + categories))
+            stats["yuefu_prefix_stripped"] += 1
 
     poem_count = Counter(p["poetName"] for p in cleaned_poems)
     authors_list = [
@@ -487,6 +657,12 @@ def main():
         f"  {stats['with_stars']} poems matched 古诗文网 star counts; "
         f"{len(star_entries) - len(matched_star_entries)} 古诗文网 poems found no poem"
     )
+    print(
+        f"  {len(near_duplicates)} groups of near-duplicate poems "
+        f"(one anthology or 古诗文网 entry matched several); "
+        f"{len(dropped)} reprints merged into another copy, "
+        f"{stats['yuefu_prefix_stripped']} 乐府 category prefixes moved to notes"
+    )
     print(f"  {len(review)} poems flagged for manual review")
 
     def write(directory: Path, name: str, data):
@@ -507,6 +683,7 @@ def main():
     # Changed decisions first: those are the ones worth checking.
     attributions.sort(key=lambda a: a["reason"] == "first copy")
     write(AUDIT_DIR, "duplicate_attributions.json", attributions)
+    write(AUDIT_DIR, "near_duplicates.json", near_duplicates)
 
     print(f"\nSaved cleaned data to {OUT_DIR}")
     print(f"Saved audit reports to {AUDIT_DIR}")
