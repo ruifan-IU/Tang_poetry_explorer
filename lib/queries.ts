@@ -1,73 +1,125 @@
 import { prisma } from './prisma';
-import { PoemType } from './prisma-client';
+import { Prisma, PoemType } from './prisma-client';
 
 // ========== Poems ==========
 
+// Poems per page of an endless feed (recommended, or a tag's poems).
+export const FEED_PAGE_SIZE = 20;
+
 /**
- * Get recommended poems for the landing page.
- * Returns random selection of high-quality poems (stars >= 500).
+ * Fame thresholds for the explore page's recommended feed, highest first.
+ *
+ * The feed shows every poem with fame >= bands[0] in random order, then
+ * every poem with fame >= bands[1] (and below bands[0]) in random order,
+ * and so on; poems below the last threshold are not in the feed, and the
+ * feed ends there. Poems per fame range in the Tang data:
+ *   >= 50: 436    30-50: 236    20-30: 1,028    15-20: 1,394
+ *   10-15: 4,662  0-10: 42,430  0: 5,710
  */
-export async function getRecommendedPoems(limit = 20, type?: PoemType) {
-  // Get poems with at least 500 stars
+function recommendationBands(): number[] {
+  return [50, 30, 20, 15, 10];
+}
+
+/**
+ * A new seed for one visit's recommended feed. The same seed gives the same
+ * order, so pages fetched later continue the list without repeats.
+ */
+export function newRecommendationSeed(): string {
+  return Math.random().toString(36).slice(2, 10);
+}
+
+/**
+ * One page of the recommended feed: fame bands from recommendationBands(),
+ * shuffled within each band by md5(id || seed). That hash order is
+ * uniformly random but fixed for a seed, so OFFSET paging works -- a
+ * shuffle in JS would reshuffle on every request.
+ */
+export async function getRecommendedPoemsPage(
+  seed: string,
+  offset = 0,
+  limit = FEED_PAGE_SIZE
+) {
+  const bands = recommendationBands();
+  // Band index i for fame >= bands[i]. The index is ours, not user input,
+  // so it goes in as a literal; thresholds and seed are bound parameters.
+  const band = Prisma.sql`CASE ${Prisma.join(
+    bands.map((t, i) => Prisma.sql`WHEN "fame" >= ${t} THEN ${Prisma.raw(String(i))}`),
+    ' '
+  )} END`;
+  const rows = await prisma.$queryRaw<{ id: number }[]>`
+    SELECT "id" FROM "Poem"
+    WHERE "fame" >= ${bands[bands.length - 1]}
+    ORDER BY ${band}, md5("id"::text || ${seed}), "id"
+    LIMIT ${limit} OFFSET ${offset}
+  `;
+  const ids = rows.map((r) => r.id);
+
   const poems = await prisma.poem.findMany({
-    where: {
-      stars: { gte: 500 },
-      ...(type && { type }),
-    },
+    where: { id: { in: ids } },
     include: {
       poet: true,
       tags: true,
       dynasty: true,
     },
   });
-
-  // Shuffle and return limited results
-  return poems.sort(() => Math.random() - 0.5).slice(0, limit);
+  // `in` returns rows in the database's order; restore the sampled order.
+  const byId = new Map(poems.map((p) => [p.id, p]));
+  return ids.map((id) => byId.get(id)!);
 }
 
-/**
- * Get poems filtered by poet, tags, dynasty, and/or type.
- */
-export async function getFilteredPoems({
-  poetId,
-  tagIds,
-  dynastyId,
-  type,
-  limit = 20,
-}: {
+type PoemFilters = {
   poetId?: number;
   tagIds?: number[];
   dynastyId?: number;
   type?: PoemType;
-  limit?: number;
-}) {
-  return prisma.poem.findMany({
-    where: {
-      ...(poetId && { poetId }),
-      ...(dynastyId && { dynastyId }),
-      ...(type && { type }),
-      ...(tagIds &&
-        tagIds.length > 0 && {
-          tags: {
-            some: {
-              id: { in: tagIds },
-            },
+};
+
+// Several tags match poems with any of them, not all.
+function filteredPoemsWhere({ poetId, tagIds, dynastyId, type }: PoemFilters) {
+  return {
+    ...(poetId && { poetId }),
+    ...(dynastyId && { dynastyId }),
+    ...(type && { type }),
+    ...(tagIds &&
+      tagIds.length > 0 && {
+        tags: {
+          some: {
+            id: { in: tagIds },
           },
-        }),
-    },
+        },
+      }),
+  };
+}
+
+/**
+ * Get poems filtered by poet, tags, dynasty, and/or type, best known first.
+ * `offset` pages through them for the endless tag feed.
+ */
+export async function getFilteredPoems({
+  limit = FEED_PAGE_SIZE,
+  offset = 0,
+  ...filters
+}: PoemFilters & { limit?: number; offset?: number }) {
+  return prisma.poem.findMany({
+    where: filteredPoemsWhere(filters),
     include: {
       poet: true,
       tags: true,
       dynasty: true,
     },
-    orderBy: [
-      { fame: 'desc' },
-      {
-        stars: 'desc',
-      },
-    ],
+    // id last: paging needs a total order, or poems with equal fame and
+    // stars could swap between requests and repeat or go missing.
+    orderBy: [{ fame: 'desc' }, { stars: 'desc' }, { id: 'asc' }],
     take: limit,
+    skip: offset,
   });
+}
+
+/**
+ * How many poems match the filters (the total shown above a tag's feed).
+ */
+export async function countFilteredPoems(filters: PoemFilters) {
+  return prisma.poem.count({ where: filteredPoemsWhere(filters) });
 }
 
 /**
@@ -173,14 +225,14 @@ export async function getPoetsByDynasty(dynastyId: number) {
 // ========== Tags ==========
 
 /**
- * Get all tags ordered by name.
+ * Get all tags, most-used first, with their poem counts.
  * Useful for filter sidebar.
  */
 export async function getAllTags() {
   return prisma.tag.findMany({
-    orderBy: {
-      name: 'asc',
-    },
+    // Most-used first: a name sort orders Chinese by code point, which
+    // means nothing to a reader.
+    orderBy: [{ poems: { _count: 'desc' } }, { name: 'asc' }],
     include: {
       _count: {
         select: { poems: true },

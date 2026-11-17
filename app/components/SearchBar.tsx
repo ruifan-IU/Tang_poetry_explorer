@@ -21,7 +21,7 @@ export function SearchBar() {
     }
 
     startTransition(() => {
-      router.push(`/explore?${params.toString()}`);
+      router.push(`/?${params.toString()}`);
     });
   };
 
@@ -31,7 +31,7 @@ export function SearchBar() {
     params.delete('q');
 
     startTransition(() => {
-      router.push(`/explore?${params.toString()}`);
+      router.push(`/?${params.toString()}`);
     });
   };
 

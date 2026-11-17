@@ -11,9 +11,6 @@ type Poem = {
   poet: {
     name: string;
   };
-  dynasty: {
-    name: string;
-  };
 };
 
 type Memorization = {
@@ -158,7 +155,7 @@ export default function PracticePage() {
                   返回背诵列表
                 </Link>
                 <Link
-                  href="/explore"
+                  href="/"
                   className="rounded-lg border border-zinc-300 px-6 py-2 text-zinc-700 hover:bg-zinc-50"
                 >
                   继续探索
@@ -216,7 +213,7 @@ export default function PracticePage() {
                 {memorization.poem.title}
               </h2>
               <p className="text-zinc-600">
-                {memorization.poem.poet.name} · {memorization.poem.dynasty.name}
+                {memorization.poem.poet.name}
               </p>
             </div>
 

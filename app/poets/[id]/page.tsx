@@ -26,9 +26,6 @@ export default async function PoetDetailPage(props: { params: Params }) {
                   <h1 className='mb-2 text-4xl font-bold text-zinc-900'>
                     {poet.name}
                   </h1>
-                  {poet.dynasty && (
-                    <p className='text-lg text-zinc-600'>{poet.dynasty.name}</p>
-                  )}
                 </div>
                 <div className='flex items-center gap-2 text-amber-600'>
                   <span>⭐</span>

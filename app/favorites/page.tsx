@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 import { PoemCard } from '../components/PoemCard';
 import { getCurrentUser } from '@/lib/auth';
 import { getUserFavoritedPoems, getUserFavoritedPoemIds } from '@/lib/favorites';
@@ -86,12 +87,12 @@ export default async function FavoritesPage() {
               <p className="mt-2 text-sm text-zinc-500">
                 去探索页面发现喜欢的诗词吧
               </p>
-              <a
-                href="/explore"
+              <Link
+                href="/"
                 className="mt-4 inline-block rounded-lg bg-zinc-900 px-6 py-2 text-white hover:bg-zinc-800"
               >
                 去探索
-              </a>
+              </Link>
             </div>
           )}
         </Suspense>

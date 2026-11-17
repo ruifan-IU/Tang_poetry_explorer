@@ -1,5 +1,7 @@
+import { Suspense } from 'react';
 import Link from 'next/link';
 import { getCurrentUser } from '@/lib/auth';
+import { NavSearch } from './NavSearch';
 import { UserMenu } from './UserMenu';
 import { VerificationBanner } from './VerificationBanner';
 
@@ -11,16 +13,21 @@ export async function Navbar() {
       {user && !user.emailVerified && (
         <VerificationBanner userEmail={user.email} />
       )}
-      <div className='container mx-auto flex items-center justify-between px-4 py-4'>
+      <div className='container mx-auto flex flex-wrap items-center justify-between gap-y-3 px-4 py-4'>
         {/* Logo/Brand */}
-        <Link href='/explore' className='flex items-center gap-2'>
+        <Link href='/' className='flex items-center gap-2'>
           <span className='text-2xl font-bold text-zinc-900'>诗词探索</span>
         </Link>
+
+        {/* useSearchParams() needs a Suspense boundary outside it */}
+        <Suspense>
+          <NavSearch />
+        </Suspense>
 
         {/* Navigation Links */}
         <div className='flex items-center gap-6'>
           <Link
-            href='/explore'
+            href='/'
             className='text-zinc-700 transition-colors hover:text-zinc-900'
           >
             探索

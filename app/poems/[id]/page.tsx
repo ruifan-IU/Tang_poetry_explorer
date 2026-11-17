@@ -44,7 +44,6 @@ export default async function PoemDetailPage(props: { params: Params }) {
                   <p className='text-lg font-medium text-zinc-900 hover:underline'>
                     {poem.poet.name}
                   </p>
-                  <p className='text-sm text-zinc-600'>{poem.dynasty.name}</p>
                 </div>
               </Link>
               <div className='flex items-center gap-3'>

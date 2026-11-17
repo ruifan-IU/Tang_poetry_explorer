@@ -4,41 +4,19 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useTransition } from 'react';
 
 type FilterSidebarProps = {
-  dynasties: Array<{
-    id: number;
-    name: string;
-    _count: { poems: number; poets: number };
-  }>;
   tags: Array<{ id: number; name: string; _count: { poems: number } }>;
 };
 
-export function FilterSidebar({ dynasties, tags }: FilterSidebarProps) {
+export function FilterSidebar({ tags }: FilterSidebarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
 
-  const selectedDynastyId = searchParams.get('dynastyId');
   const selectedTagIds = searchParams.getAll('tagId');
 
-  const [searchTag, setSearchTag] = useState('');
-
-  const filteredTags = tags
-    .filter((tag) => tag.name.toLowerCase().includes(searchTag.toLowerCase()))
-    .slice(0, 10);
-
-  const handleDynastySelect = (dynastyId: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-
-    if (selectedDynastyId === dynastyId) {
-      params.delete('dynastyId');
-    } else {
-      params.set('dynastyId', dynastyId);
-    }
-
-    startTransition(() => {
-      router.push(`/explore?${params.toString()}`);
-    });
-  };
+  // Phones stack the tag list above the feed, so there it starts folded;
+  // from lg up it sits in its own column and is always shown.
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleTagToggle = (tagId: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -53,20 +31,20 @@ export function FilterSidebar({ dynasties, tags }: FilterSidebarProps) {
     }
 
     startTransition(() => {
-      router.push(`/explore?${params.toString()}`);
+      router.push(`/?${params.toString()}`);
     });
   };
 
   const handleClearFilters = () => {
     startTransition(() => {
-      router.push('/explore');
+      router.push('/');
     });
   };
 
-  const hasActiveFilters = selectedDynastyId || selectedTagIds.length > 0;
+  const hasActiveFilters = selectedTagIds.length > 0;
 
   return (
-    <aside className='space-y-6'>
+    <div className='space-y-4'>
       {/* Clear Filters Button */}
       {hasActiveFilters && (
         <button
@@ -77,44 +55,30 @@ export function FilterSidebar({ dynasties, tags }: FilterSidebarProps) {
         </button>
       )}
 
-      {/* Dynasty Filter */}
-      <div className='rounded-lg border border-zinc-200 bg-white p-4'>
-        <h3 className='mb-3 text-lg font-semibold text-zinc-900'>朝代</h3>
-
-        <div className='max-h-64 space-y-2 overflow-y-auto'>
-          {dynasties.map((dynasty) => (
-            <button
-              key={dynasty.id}
-              onClick={() => handleDynastySelect(String(dynasty.id))}
-              className={`flex w-full items-center justify-between rounded px-3 py-2 text-left text-sm text-zinc-700 transition-colors ${
-                selectedDynastyId === String(dynasty.id)
-                  ? 'bg-zinc-300 text-white'
-                  : 'hover:bg-zinc-100'
-              }`}
-            >
-              <span className='truncate'>{dynasty.name}</span>
-              <span className='ml-2 text-xs opacity-60'>
-                {dynasty._count.poems}
-              </span>
-            </button>
-          ))}
-        </div>
-      </div>
-
       {/* Tags Filter */}
       <div className='rounded-lg border border-zinc-200 bg-white p-4'>
-        <h3 className='mb-3 text-lg font-semibold text-zinc-900'>标签</h3>
+        <button
+          onClick={() => setIsOpen((open) => !open)}
+          aria-expanded={isOpen}
+          className='flex w-full items-center justify-between lg:pointer-events-none'
+        >
+          <h3 className='text-lg font-semibold text-zinc-900'>
+            标签
+            {hasActiveFilters && (
+              <span className='ml-2 text-sm font-normal text-zinc-500'>
+                已选 {selectedTagIds.length}
+              </span>
+            )}
+          </h3>
+          <span className='text-sm text-zinc-500 lg:hidden'>
+            {isOpen ? '收起 ▲' : '展开 ▼'}
+          </span>
+        </button>
 
-        <input
-          type='text'
-          placeholder='搜索标签...'
-          value={searchTag}
-          onChange={(e) => setSearchTag(e.target.value)}
-          className='mb-3 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-700 focus:border-zinc-500 focus:outline-none'
-        />
-
-        <div className='flex flex-wrap gap-2'>
-          {filteredTags.map((tag) => (
+        <div
+          className={`mt-3 flex-wrap gap-2 ${isOpen ? 'flex' : 'hidden'} lg:flex`}
+        >
+          {tags.map((tag) => (
             <button
               key={tag.id}
               onClick={() => handleTagToggle(String(tag.id))}
@@ -135,6 +99,6 @@ export function FilterSidebar({ dynasties, tags }: FilterSidebarProps) {
           加载中...
         </div>
       )}
-    </aside>
+    </div>
   );
 }

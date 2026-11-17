@@ -16,9 +16,6 @@ type PoemCardProps = {
       name: string;
       image: string | null;
     };
-    dynasty: {
-      name: string;
-    };
     tags: Array<{
       name: string;
     }>;
@@ -60,7 +57,7 @@ export function PoemCard({
             className='mt-2 text-left hover:underline'
           >
             <p className='text-sm text-zinc-600'>
-              {poem.poet.name} · {poem.dynasty.name}
+              {poem.poet.name}
             </p>
           </button>
         </div>
