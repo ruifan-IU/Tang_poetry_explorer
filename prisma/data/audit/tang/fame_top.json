@@ -1,0 +1,1606 @@
+{
+  "poets": [
+    {
+      "name": "李白",
+      "fame": 95.06553788940909,
+      "sitelinks": 199,
+      "anthologyPoems": 42,
+      "starsTotal": 169053,
+      "starsMax": 32615
+    },
+    {
+      "name": "杜甫",
+      "fame": 94.6502563934186,
+      "sitelinks": 139,
+      "anthologyPoems": 62,
+      "starsTotal": 107952,
+      "starsMax": 16840
+    },
+    {
+      "name": "王维",
+      "fame": 77.47136415057038,
+      "sitelinks": 54,
+      "anthologyPoems": 28,
+      "starsTotal": 50775,
+      "starsMax": 7514
+    },
+    {
+      "name": "李商隐",
+      "fame": 73.99527645265901,
+      "sitelinks": 32,
+      "anthologyPoems": 26,
+      "starsTotal": 44243,
+      "starsMax": 8448
+    },
+    {
+      "name": "孟浩然",
+      "fame": 69.31982647935884,
+      "sitelinks": 37,
+      "anthologyPoems": 18,
+      "starsTotal": 23095,
+      "starsMax": 6980
+    },
+    {
+      "name": "白居易",
+      "fame": 65.67093306292088,
+      "sitelinks": 59,
+      "anthologyPoems": 7,
+      "starsTotal": 74279,
+      "starsMax": 14769
+    },
+    {
+      "name": "杜牧",
+      "fame": 64.21251683507536,
+      "sitelinks": 39,
+      "anthologyPoems": 10,
+      "starsTotal": 30222,
+      "starsMax": 7402
+    },
+    {
+      "name": "王昌龄",
+      "fame": 62.27002172277468,
+      "sitelinks": 25,
+      "anthologyPoems": 10,
+      "starsTotal": 22018,
+      "starsMax": 9632
+    },
+    {
+      "name": "韦应物",
+      "fame": 60.02506687895945,
+      "sitelinks": 19,
+      "anthologyPoems": 14,
+      "starsTotal": 6121,
+      "starsMax": 3506
+    },
+    {
+      "name": "岑参",
+      "fame": 59.955445015579976,
+      "sitelinks": 19,
+      "anthologyPoems": 9,
+      "starsTotal": 17505,
+      "starsMax": 10889
+    },
+    {
+      "name": "刘禹锡",
+      "fame": 59.156622554015996,
+      "sitelinks": 26,
+      "anthologyPoems": 7,
+      "starsTotal": 28934,
+      "starsMax": 8031
+    },
+    {
+      "name": "韩愈",
+      "fame": 58.380120521369456,
+      "sitelinks": 55,
+      "anthologyPoems": 6,
+      "starsTotal": 12505,
+      "starsMax": 5529
+    },
+    {
+      "name": "柳宗元",
+      "fame": 55.61081403599519,
+      "sitelinks": 37,
+      "anthologyPoems": 5,
+      "starsTotal": 10627,
+      "starsMax": 7841
+    },
+    {
+      "name": "刘长卿",
+      "fame": 55.5643445353499,
+      "sitelinks": 16,
+      "anthologyPoems": 11,
+      "starsTotal": 6058,
+      "starsMax": 1730
+    },
+    {
+      "name": "张九龄",
+      "fame": 51.17598048038443,
+      "sitelinks": 17,
+      "anthologyPoems": 5,
+      "starsTotal": 6924,
+      "starsMax": 5343
+    },
+    {
+      "name": "元稹",
+      "fame": 50.03831481646923,
+      "sitelinks": 31,
+      "anthologyPoems": 4,
+      "starsTotal": 7905,
+      "starsMax": 2522
+    },
+    {
+      "name": "崔颢",
+      "fame": 49.42707286558022,
+      "sitelinks": 21,
+      "anthologyPoems": 4,
+      "starsTotal": 5299,
+      "starsMax": 5007
+    },
+    {
+      "name": "高适",
+      "fame": 48.828713237747145,
+      "sitelinks": 18,
+      "anthologyPoems": 5,
+      "starsTotal": 6158,
+      "starsMax": 1694
+    },
+    {
+      "name": "陈子昂",
+      "fame": 47.78230181994969,
+      "sitelinks": 22,
+      "anthologyPoems": 4,
+      "starsTotal": 3629,
+      "starsMax": 2886
+    },
+    {
+      "name": "温庭筠",
+      "fame": 47.365122554335635,
+      "sitelinks": 17,
+      "anthologyPoems": 4,
+      "starsTotal": 6919,
+      "starsMax": 2074
+    },
+    {
+      "name": "贺知章",
+      "fame": 47.04671181267213,
+      "sitelinks": 21,
+      "anthologyPoems": 2,
+      "starsTotal": 13747,
+      "starsMax": 9419
+    },
+    {
+      "name": "李颀",
+      "fame": 46.0701743954613,
+      "sitelinks": 13,
+      "anthologyPoems": 8,
+      "starsTotal": 1001,
+      "starsMax": 438
+    },
+    {
+      "name": "卢纶",
+      "fame": 45.36325785182667,
+      "sitelinks": 10,
+      "anthologyPoems": 6,
+      "starsTotal": 2397,
+      "starsMax": 802
+    },
+    {
+      "name": "张祜",
+      "fame": 45.32817730910898,
+      "sitelinks": 9,
+      "anthologyPoems": 6,
+      "starsTotal": 2290,
+      "starsMax": 971
+    },
+    {
+      "name": "孟郊",
+      "fame": 45.00750677542573,
+      "sitelinks": 13,
+      "anthologyPoems": 2,
+      "starsTotal": 11346,
+      "starsMax": 8681
+    },
+    {
+      "name": "王之涣",
+      "fame": 44.15430344718545,
+      "sitelinks": 17,
+      "anthologyPoems": 2,
+      "starsTotal": 9310,
+      "starsMax": 4438
+    },
+    {
+      "name": "王勃",
+      "fame": 43.70906808888171,
+      "sitelinks": 25,
+      "anthologyPoems": 1,
+      "starsTotal": 18933,
+      "starsMax": 8649
+    },
+    {
+      "name": "贾岛",
+      "fame": 43.22968653140123,
+      "sitelinks": 17,
+      "anthologyPoems": 2,
+      "starsTotal": 7489,
+      "starsMax": 3387
+    },
+    {
+      "name": "韩翃",
+      "fame": 42.216312833995424,
+      "sitelinks": 8,
+      "anthologyPoems": 3,
+      "starsTotal": 3318,
+      "starsMax": 2926
+    },
+    {
+      "name": "刘方平",
+      "fame": 41.7060972131578,
+      "sitelinks": 8,
+      "anthologyPoems": 2,
+      "starsTotal": 6379,
+      "starsMax": 5559
+    },
+    {
+      "name": "韦庄",
+      "fame": 41.653754830368875,
+      "sitelinks": 15,
+      "anthologyPoems": 3,
+      "starsTotal": 3502,
+      "starsMax": 827
+    },
+    {
+      "name": "唐玄宗",
+      "fame": 41.54594122141821,
+      "sitelinks": 47,
+      "anthologyPoems": 2,
+      "starsTotal": 1598,
+      "starsMax": 1369
+    },
+    {
+      "name": "宋之问",
+      "fame": 41.39459952463698,
+      "sitelinks": 9,
+      "anthologyPoems": 4,
+      "starsTotal": 1606,
+      "starsMax": 956
+    },
+    {
+      "name": "钱起",
+      "fame": 41.14416976826788,
+      "sitelinks": 10,
+      "anthologyPoems": 7,
+      "starsTotal": 928,
+      "starsMax": 105
+    },
+    {
+      "name": "骆宾王",
+      "fame": 40.04942172461738,
+      "sitelinks": 21,
+      "anthologyPoems": 2,
+      "starsTotal": 2715,
+      "starsMax": 1254
+    },
+    {
+      "name": "李益",
+      "fame": 39.6039220214751,
+      "sitelinks": 10,
+      "anthologyPoems": 3,
+      "starsTotal": 2373,
+      "starsMax": 732
+    },
+    {
+      "name": "王翰",
+      "fame": 39.07250025822988,
+      "sitelinks": 13,
+      "anthologyPoems": 1,
+      "starsTotal": 6013,
+      "starsMax": 5940
+    },
+    {
+      "name": "张籍",
+      "fame": 39.0305510122952,
+      "sitelinks": 12,
+      "anthologyPoems": 1,
+      "starsTotal": 7460,
+      "starsMax": 5413
+    },
+    {
+      "name": "常建",
+      "fame": 38.53841734438608,
+      "sitelinks": 8,
+      "anthologyPoems": 2,
+      "starsTotal": 2605,
+      "starsMax": 2297
+    },
+    {
+      "name": "祖咏",
+      "fame": 38.28370250881501,
+      "sitelinks": 7,
+      "anthologyPoems": 4,
+      "starsTotal": 721,
+      "starsMax": 537
+    },
+    {
+      "name": "王湾",
+      "fame": 37.520319524565494,
+      "sitelinks": 7,
+      "anthologyPoems": 1,
+      "starsTotal": 6186,
+      "starsMax": 6106
+    },
+    {
+      "name": "司空曙",
+      "fame": 37.09911528336624,
+      "sitelinks": 8,
+      "anthologyPoems": 4,
+      "starsTotal": 929,
+      "starsMax": 195
+    },
+    {
+      "name": "张继",
+      "fame": 36.77582255986001,
+      "sitelinks": 12,
+      "anthologyPoems": 1,
+      "starsTotal": 3497,
+      "starsMax": 3299
+    },
+    {
+      "name": "李煜",
+      "fame": 36.64314082585896,
+      "sitelinks": 27,
+      "anthologyPoems": 0,
+      "starsTotal": 14508,
+      "starsMax": 11279
+    },
+    {
+      "name": "崔涂",
+      "fame": 36.28433840097029,
+      "sitelinks": 8,
+      "anthologyPoems": 3,
+      "starsTotal": 807,
+      "starsMax": 447
+    },
+    {
+      "name": "戴叔伦",
+      "fame": 35.58377002122515,
+      "sitelinks": 10,
+      "anthologyPoems": 2,
+      "starsTotal": 2010,
+      "starsMax": 466
+    },
+    {
+      "name": "杜审言",
+      "fame": 35.4057692238956,
+      "sitelinks": 15,
+      "anthologyPoems": 3,
+      "starsTotal": 505,
+      "starsMax": 191
+    },
+    {
+      "name": "王绩",
+      "fame": 35.18578074149975,
+      "sitelinks": 11,
+      "anthologyPoems": 1,
+      "starsTotal": 2445,
+      "starsMax": 2234
+    },
+    {
+      "name": "许浑",
+      "fame": 34.9874651377444,
+      "sitelinks": 9,
+      "anthologyPoems": 2,
+      "starsTotal": 1987,
+      "starsMax": 396
+    },
+    {
+      "name": "杜荀鹤",
+      "fame": 34.9196774643771,
+      "sitelinks": 9,
+      "anthologyPoems": 2,
+      "starsTotal": 1739,
+      "starsMax": 428
+    },
+    {
+      "name": "李峤",
+      "fame": 34.840914682883536,
+      "sitelinks": 7,
+      "anthologyPoems": 1,
+      "starsTotal": 3591,
+      "starsMax": 2384
+    },
+    {
+      "name": "高骈",
+      "fame": 33.969251310594,
+      "sitelinks": 8,
+      "anthologyPoems": 1,
+      "starsTotal": 2225,
+      "starsMax": 1923
+    },
+    {
+      "name": "王建",
+      "fame": 33.871682833669,
+      "sitelinks": 9,
+      "anthologyPoems": 1,
+      "starsTotal": 3613,
+      "starsMax": 1053
+    },
+    {
+      "name": "杨炯",
+      "fame": 33.856664198239244,
+      "sitelinks": 9,
+      "anthologyPoems": 1,
+      "starsTotal": 1984,
+      "starsMax": 1732
+    },
+    {
+      "name": "李贺",
+      "fame": 33.68414031811877,
+      "sitelinks": 29,
+      "anthologyPoems": 0,
+      "starsTotal": 9005,
+      "starsMax": 3820
+    },
+    {
+      "name": "张若虚",
+      "fame": 33.356874318311675,
+      "sitelinks": 9,
+      "anthologyPoems": 0,
+      "starsTotal": 10821,
+      "starsMax": 10727
+    },
+    {
+      "name": "皎然",
+      "fame": 33.196533602130756,
+      "sitelinks": 7,
+      "anthologyPoems": 1,
+      "starsTotal": 2174,
+      "starsMax": 1542
+    },
+    {
+      "name": "马戴",
+      "fame": 32.516549017371325,
+      "sitelinks": 5,
+      "anthologyPoems": 2,
+      "starsTotal": 895,
+      "starsMax": 434
+    },
+    {
+      "name": "沈佺期",
+      "fame": 32.31534343777106,
+      "sitelinks": 13,
+      "anthologyPoems": 3,
+      "starsTotal": 412,
+      "starsMax": 57
+    },
+    {
+      "name": "张说",
+      "fame": 32.216764717643805,
+      "sitelinks": 10,
+      "anthologyPoems": 3,
+      "starsTotal": 484,
+      "starsMax": 64
+    },
+    {
+      "name": "张旭",
+      "fame": 31.431786495788028,
+      "sitelinks": 13,
+      "anthologyPoems": 1,
+      "starsTotal": 861,
+      "starsMax": 669
+    },
+    {
+      "name": "陈陶",
+      "fame": 30.295780953185183,
+      "sitelinks": 7,
+      "anthologyPoems": 1,
+      "starsTotal": 1226,
+      "starsMax": 549
+    },
+    {
+      "name": "朱庆余",
+      "fame": 30.251026751153702,
+      "sitelinks": 5,
+      "anthologyPoems": 2,
+      "starsTotal": 663,
+      "starsMax": 166
+    },
+    {
+      "name": "张志和",
+      "fame": 30.06053838059957,
+      "sitelinks": 7,
+      "anthologyPoems": 0,
+      "starsTotal": 9093,
+      "starsMax": 3003
+    },
+    {
+      "name": "张谓",
+      "fame": 30.005220602122105,
+      "sitelinks": 4,
+      "anthologyPoems": 1,
+      "starsTotal": 1131,
+      "starsMax": 923
+    },
+    {
+      "name": "赵嘏",
+      "fame": 29.791164800125262,
+      "sitelinks": 4,
+      "anthologyPoems": 2,
+      "starsTotal": 723,
+      "starsMax": 153
+    },
+    {
+      "name": "韩偓",
+      "fame": 29.165555936737842,
+      "sitelinks": 10,
+      "anthologyPoems": 1,
+      "starsTotal": 1565,
+      "starsMax": 170
+    },
+    {
+      "name": "罗隐",
+      "fame": 29.097197009394705,
+      "sitelinks": 13,
+      "anthologyPoems": 0,
+      "starsTotal": 5199,
+      "starsMax": 1531
+    },
+    {
+      "name": "皇甫冉",
+      "fame": 28.84858736181182,
+      "sitelinks": 6,
+      "anthologyPoems": 2,
+      "starsTotal": 425,
+      "starsMax": 94
+    },
+    {
+      "name": "顾况",
+      "fame": 28.15039003929778,
+      "sitelinks": 8,
+      "anthologyPoems": 1,
+      "starsTotal": 820,
+      "starsMax": 219
+    },
+    {
+      "name": "唐太宗",
+      "fame": 28.05517881689036,
+      "sitelinks": 57,
+      "anthologyPoems": 0,
+      "starsTotal": 1729,
+      "starsMax": 590
+    },
+    {
+      "name": "皮日休",
+      "fame": 27.828114753426075,
+      "sitelinks": 9,
+      "anthologyPoems": 0,
+      "starsTotal": 2782,
+      "starsMax": 1976
+    },
+    {
+      "name": "李端",
+      "fame": 27.2903343780936,
+      "sitelinks": 6,
+      "anthologyPoems": 1,
+      "starsTotal": 619,
+      "starsMax": 236
+    },
+    {
+      "name": "黄巢",
+      "fame": 27.24757112696257,
+      "sitelinks": 25,
+      "anthologyPoems": 0,
+      "starsTotal": 1544,
+      "starsMax": 919
+    },
+    {
+      "name": "慧能",
+      "fame": 26.74373405482925,
+      "sitelinks": 35,
+      "anthologyPoems": 0,
+      "starsTotal": 872,
+      "starsMax": 872
+    },
+    {
+      "name": "储光羲",
+      "fame": 26.421300037238613,
+      "sitelinks": 9,
+      "anthologyPoems": 1,
+      "starsTotal": 468,
+      "starsMax": 128
+    },
+    {
+      "name": "柳中庸",
+      "fame": 26.410937913167047,
+      "sitelinks": 4,
+      "anthologyPoems": 1,
+      "starsTotal": 388,
+      "starsMax": 323
+    },
+    {
+      "name": "崔护",
+      "fame": 26.333525575424847,
+      "sitelinks": 7,
+      "anthologyPoems": 0,
+      "starsTotal": 1760,
+      "starsMax": 1712
+    },
+    {
+      "name": "李涉",
+      "fame": 26.16519191476733,
+      "sitelinks": 2,
+      "anthologyPoems": 1,
+      "starsTotal": 662,
+      "starsMax": 335
+    },
+    {
+      "name": "虞世南",
+      "fame": 26.136799687279407,
+      "sitelinks": 13,
+      "anthologyPoems": 0,
+      "starsTotal": 1292,
+      "starsMax": 1126
+    },
+    {
+      "name": "吕岩",
+      "fame": 26.132485265353356,
+      "sitelinks": 21,
+      "anthologyPoems": 0,
+      "starsTotal": 1277,
+      "starsMax": 737
+    },
+    {
+      "name": "张泌",
+      "fame": 26.038924799814865,
+      "sitelinks": 4,
+      "anthologyPoems": 1,
+      "starsTotal": 393,
+      "starsMax": 261
+    },
+    {
+      "name": "严维",
+      "fame": 26.0057096594614,
+      "sitelinks": 3,
+      "anthologyPoems": 2,
+      "starsTotal": 165,
+      "starsMax": 88
+    },
+    {
+      "name": "卢照邻",
+      "fame": 25.984913882445145,
+      "sitelinks": 12,
+      "anthologyPoems": 0,
+      "starsTotal": 2085,
+      "starsMax": 750
+    },
+    {
+      "name": "权德舆",
+      "fame": 25.928113614700887,
+      "sitelinks": 7,
+      "anthologyPoems": 1,
+      "starsTotal": 612,
+      "starsMax": 100
+    },
+    {
+      "name": "綦毋潜",
+      "fame": 25.768308339114572,
+      "sitelinks": 6,
+      "anthologyPoems": 2,
+      "starsTotal": 115,
+      "starsMax": 55
+    },
+    {
+      "name": "李绅",
+      "fame": 25.54805733450061,
+      "sitelinks": 6,
+      "anthologyPoems": 0,
+      "starsTotal": 1642,
+      "starsMax": 1388
+    },
+    {
+      "name": "薛逢",
+      "fame": 25.404122552735718,
+      "sitelinks": 4,
+      "anthologyPoems": 1,
+      "starsTotal": 519,
+      "starsMax": 146
+    },
+    {
+      "name": "元结",
+      "fame": 25.304103966884764,
+      "sitelinks": 7,
+      "anthologyPoems": 2,
+      "starsTotal": 153,
+      "starsMax": 29
+    },
+    {
+      "name": "西鄙人",
+      "fame": 25.201835091347977,
+      "sitelinks": 0,
+      "anthologyPoems": 2,
+      "starsTotal": 362,
+      "starsMax": 181
+    },
+    {
+      "name": "丘为",
+      "fame": 24.830506697199286,
+      "sitelinks": 7,
+      "anthologyPoems": 2,
+      "starsTotal": 98,
+      "starsMax": 33
+    },
+    {
+      "name": "胡令能",
+      "fame": 24.69099319890537,
+      "sitelinks": 2,
+      "anthologyPoems": 0,
+      "starsTotal": 2041,
+      "starsMax": 1888
+    },
+    {
+      "name": "秦韬玉",
+      "fame": 24.665889451439302,
+      "sitelinks": 4,
+      "anthologyPoems": 1,
+      "starsTotal": 279,
+      "starsMax": 165
+    },
+    {
+      "name": "高蟾",
+      "fame": 24.651349657870615,
+      "sitelinks": 1,
+      "anthologyPoems": 1,
+      "starsTotal": 555,
+      "starsMax": 272
+    },
+    {
+      "name": "金昌绪",
+      "fame": 24.61984901572127,
+      "sitelinks": 4,
+      "anthologyPoems": 1,
+      "starsTotal": 207,
+      "starsMax": 207
+    },
+    {
+      "name": "殷尧藩",
+      "fame": 24.558323004554435,
+      "sitelinks": 3,
+      "anthologyPoems": 0,
+      "starsTotal": 1678,
+      "starsMax": 1480
+    },
+    {
+      "name": "司空图",
+      "fame": 24.252508240396846,
+      "sitelinks": 11,
+      "anthologyPoems": 0,
+      "starsTotal": 1484,
+      "starsMax": 450
+    },
+    {
+      "name": "杨巨源",
+      "fame": 24.23388875563914,
+      "sitelinks": 0,
+      "anthologyPoems": 1,
+      "starsTotal": 694,
+      "starsMax": 447
+    },
+    {
+      "name": "刘眘虚",
+      "fame": 24.018172198688173,
+      "sitelinks": 3,
+      "anthologyPoems": 1,
+      "starsTotal": 214,
+      "starsMax": 185
+    },
+    {
+      "name": "陆龟蒙",
+      "fame": 23.7346708548899,
+      "sitelinks": 11,
+      "anthologyPoems": 0,
+      "starsTotal": 1800,
+      "starsMax": 294
+    }
+  ],
+  "poems": [
+    {
+      "title": "将进酒",
+      "poet": "李白",
+      "fame": 100.0,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 32615
+    },
+    {
+      "title": "春望",
+      "poet": "杜甫",
+      "fame": 97.15475585512576,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 16840
+    },
+    {
+      "title": "长恨歌",
+      "poet": "白居易",
+      "fame": 96.48137584272033,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 14769
+    },
+    {
+      "title": "静夜思",
+      "poet": "李白",
+      "fame": 95.81812958024192,
+      "in_tang300": true,
+      "in_qianjia": true,
+      "gushiwen_stars": 12451
+    },
+    {
+      "title": "白雪歌送武判官归京",
+      "poet": "岑参",
+      "fame": 95.06923028342213,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 10889
+    },
+    {
+      "title": "芙蓉楼送辛渐二首 一",
+      "poet": "王昌龄",
+      "fame": 94.51957262114102,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 9632
+    },
+    {
+      "title": "常娥",
+      "poet": "李商隐",
+      "fame": 93.98488176348553,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 8448
+    },
+    {
+      "title": "黄鹤楼送孟浩然之广陵",
+      "poet": "李白",
+      "fame": 93.96622743120395,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 8197
+    },
+    {
+      "title": "游子吟",
+      "poet": "孟郊",
+      "fame": 93.95282936827479,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 8681
+    },
+    {
+      "title": "望岳",
+      "poet": "杜甫",
+      "fame": 93.712545026205,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 7745
+    },
+    {
+      "title": "无题",
+      "poet": "李商隐",
+      "fame": 93.64179468538549,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 7830
+    },
+    {
+      "title": "行路难三首 一",
+      "poet": "李白",
+      "fame": 93.63415027031137,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 7605
+    },
+    {
+      "title": "绝句四首 三",
+      "poet": "杜甫",
+      "fame": 93.59895249365316,
+      "in_tang300": false,
+      "in_qianjia": true,
+      "gushiwen_stars": 7549
+    },
+    {
+      "title": "江雪",
+      "poet": "柳宗元",
+      "fame": 93.54221356714795,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 7841
+    },
+    {
+      "title": "山居秋暝",
+      "poet": "王维",
+      "fame": 93.47638496035759,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 7514
+    },
+    {
+      "title": "秋夕",
+      "poet": "杜牧",
+      "fame": 93.32925613298534,
+      "in_tang300": true,
+      "in_qianjia": true,
+      "gushiwen_stars": 7402
+    },
+    {
+      "title": "过故人庄",
+      "poet": "孟浩然",
+      "fame": 93.09365719093891,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 6980
+    },
+    {
+      "title": "九月九日忆山东兄弟",
+      "poet": "王维",
+      "fame": 92.96019166549493,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 6700
+    },
+    {
+      "title": "闻官军收河南河北",
+      "poet": "杜甫",
+      "fame": 92.65520314316056,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 6101
+    },
+    {
+      "title": "夜雨寄北",
+      "poet": "李商隐",
+      "fame": 92.60075602338677,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 6218
+    },
+    {
+      "title": "次北固山下",
+      "poet": "王湾",
+      "fame": 92.27115314638007,
+      "in_tang300": true,
+      "in_qianjia": true,
+      "gushiwen_stars": 6106
+    },
+    {
+      "title": "送友人",
+      "poet": "李白",
+      "fame": 92.23153926918567,
+      "in_tang300": true,
+      "in_qianjia": true,
+      "gushiwen_stars": 5541
+    },
+    {
+      "title": "凉州词二首 一",
+      "poet": "王翰",
+      "fame": 92.15326818513404,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 5940
+    },
+    {
+      "title": "夜月",
+      "poet": "刘方平",
+      "fame": 91.8632979155207,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 5559
+    },
+    {
+      "title": "杜少府之任蜀州",
+      "poet": "王勃",
+      "fame": 91.82055097822067,
+      "in_tang300": true,
+      "in_qianjia": true,
+      "gushiwen_stars": 5491
+    },
+    {
+      "title": "蜀道难",
+      "poet": "李白",
+      "fame": 91.81438258757743,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 5043
+    },
+    {
+      "title": "望月怀远",
+      "poet": "张九龄",
+      "fame": 91.74852375420652,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 5343
+    },
+    {
+      "title": "赋得古原草送别",
+      "poet": "白居易",
+      "fame": 91.72699736710295,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 5195
+    },
+    {
+      "title": "黄鹤楼",
+      "poet": "崔颢",
+      "fame": 91.4358516363656,
+      "in_tang300": true,
+      "in_qianjia": true,
+      "gushiwen_stars": 5007
+    },
+    {
+      "title": "渭城曲",
+      "poet": "王维",
+      "fame": 91.21216487256116,
+      "in_tang300": true,
+      "in_qianjia": true,
+      "gushiwen_stars": 4544
+    },
+    {
+      "title": "出塞 一",
+      "poet": "王昌龄",
+      "fame": 91.05329801101843,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 4507
+    },
+    {
+      "title": "渡荆门送别",
+      "poet": "李白",
+      "fame": 91.05031213227917,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 4244
+    },
+    {
+      "title": "辋川集 竹里馆",
+      "poet": "王维",
+      "fame": 91.0167885567263,
+      "in_tang300": true,
+      "in_qianjia": true,
+      "gushiwen_stars": 4351
+    },
+    {
+      "title": "江南春绝句",
+      "poet": "杜牧",
+      "fame": 90.99860810784632,
+      "in_tang300": false,
+      "in_qianjia": true,
+      "gushiwen_stars": 4438
+    },
+    {
+      "title": "月下独酌四首 一",
+      "poet": "李白",
+      "fame": 90.85398604012303,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 4060
+    },
+    {
+      "title": "凉州词二首” 一",
+      "poet": "王之涣",
+      "fame": 90.83627901893844,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 4438
+    },
+    {
+      "title": "登高",
+      "poet": "杜甫",
+      "fame": 90.71190477801723,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 3935
+    },
+    {
+      "title": "春晓",
+      "poet": "孟浩然",
+      "fame": 90.63624095386885,
+      "in_tang300": true,
+      "in_qianjia": true,
+      "gushiwen_stars": 4060
+    },
+    {
+      "title": "锦瑟",
+      "poet": "李商隐",
+      "fame": 90.62095247233235,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 4011
+    },
+    {
+      "title": "泊秦淮",
+      "poet": "杜牧",
+      "fame": 90.51038655934823,
+      "in_tang300": true,
+      "in_qianjia": true,
+      "gushiwen_stars": 3987
+    },
+    {
+      "title": "琵琶引",
+      "poet": "白居易",
+      "fame": 90.27785201328427,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 3778
+    },
+    {
+      "title": "回乡偶书二首 一",
+      "poet": "贺知章",
+      "fame": 90.13561468031406,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 3795
+    },
+    {
+      "title": "月夜忆舍弟",
+      "poet": "杜甫",
+      "fame": 90.07739558548904,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 3410
+    },
+    {
+      "title": "登鹳雀楼",
+      "poet": "王之涣",
+      "fame": 90.03644114165223,
+      "in_tang300": true,
+      "in_qianjia": true,
+      "gushiwen_stars": 3735
+    },
+    {
+      "title": "滁州西涧",
+      "poet": "韦应物",
+      "fame": 89.88676329452797,
+      "in_tang300": true,
+      "in_qianjia": true,
+      "gushiwen_stars": 3506
+    },
+    {
+      "title": "早发白帝城",
+      "poet": "李白",
+      "fame": 89.68612735306014,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 3119
+    },
+    {
+      "title": "赤壁",
+      "poet": "杜牧",
+      "fame": 89.66124868551297,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 3309
+    },
+    {
+      "title": "枫桥夜泊",
+      "poet": "张继",
+      "fame": 89.39208892164794,
+      "in_tang300": true,
+      "in_qianjia": true,
+      "gushiwen_stars": 3299
+    },
+    {
+      "title": "蜀相",
+      "poet": "杜甫",
+      "fame": 89.34429881313089,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 2890
+    },
+    {
+      "title": "逢入京使",
+      "poet": "岑参",
+      "fame": 89.08410884067379,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 2942
+    },
+    {
+      "title": "霜月",
+      "poet": "李商隐",
+      "fame": 89.02052298098637,
+      "in_tang300": false,
+      "in_qianjia": true,
+      "gushiwen_stars": 2814
+    },
+    {
+      "title": "子夜吴歌 秋歌",
+      "poet": "李白",
+      "fame": 88.93759805077586,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 2634
+    },
+    {
+      "title": "寒食",
+      "poet": "韩翃",
+      "fame": 88.88534478559512,
+      "in_tang300": true,
+      "in_qianjia": true,
+      "gushiwen_stars": 2926
+    },
+    {
+      "title": "登幽州台歌",
+      "poet": "陈子昂",
+      "fame": 88.87625689060992,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 2886
+    },
+    {
+      "title": "江南逢李龟年",
+      "poet": "杜甫",
+      "fame": 88.85358027202028,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 2587
+    },
+    {
+      "title": "关山月",
+      "poet": "李白",
+      "fame": 88.8424248294607,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 2578
+    },
+    {
+      "title": "宿建德江",
+      "poet": "孟浩然",
+      "fame": 88.80487844996912,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 2711
+    },
+    {
+      "title": "登岳阳楼",
+      "poet": "杜甫",
+      "fame": 88.80363478640494,
+      "in_tang300": true,
+      "in_qianjia": true,
+      "gushiwen_stars": 2558
+    },
+    {
+      "title": "客中行",
+      "poet": "李白",
+      "fame": 88.70635993416614,
+      "in_tang300": false,
+      "in_qianjia": true,
+      "gushiwen_stars": 2500
+    },
+    {
+      "title": "辋川集 鹿柴",
+      "poet": "王维",
+      "fame": 88.20952652419797,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 2332
+    },
+    {
+      "title": "独坐敬亭山",
+      "poet": "李白",
+      "fame": 88.0322465507718,
+      "in_tang300": false,
+      "in_qianjia": true,
+      "gushiwen_stars": 2147
+    },
+    {
+      "title": "题破山寺后禅院",
+      "poet": "常建",
+      "fame": 87.72136832915109,
+      "in_tang300": false,
+      "in_qianjia": true,
+      "gushiwen_stars": 2297
+    },
+    {
+      "title": "野望",
+      "poet": "王绩",
+      "fame": 87.55521447088216,
+      "in_tang300": false,
+      "in_qianjia": true,
+      "gushiwen_stars": 2234
+    },
+    {
+      "title": "金陵五题 乌衣巷",
+      "poet": "刘禹锡",
+      "fame": 87.10207290310129,
+      "in_tang300": true,
+      "in_qianjia": true,
+      "gushiwen_stars": 1911
+    },
+    {
+      "title": "相思",
+      "poet": "王维",
+      "fame": 87.03669793557336,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 1797
+    },
+    {
+      "title": "登金陵凤凰台",
+      "poet": "李白",
+      "fame": 86.97763620751017,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 1692
+    },
+    {
+      "title": "望洞庭湖赠张丞相",
+      "poet": "孟浩然",
+      "fame": 86.87447484401962,
+      "in_tang300": true,
+      "in_qianjia": true,
+      "gushiwen_stars": 1771
+    },
+    {
+      "title": "山亭夏日",
+      "poet": "高骈",
+      "fame": 86.84060322884673,
+      "in_tang300": false,
+      "in_qianjia": true,
+      "gushiwen_stars": 1923
+    },
+    {
+      "title": "无题二首 一",
+      "poet": "李商隐",
+      "fame": 86.48843169565569,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 1606
+    },
+    {
+      "title": "八阵图",
+      "poet": "杜甫",
+      "fame": 86.39163213477153,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 1484
+    },
+    {
+      "title": "乐游原",
+      "poet": "李商隐",
+      "fame": 86.33404477497596,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 1552
+    },
+    {
+      "title": "杂诗三首 二",
+      "poet": "王维",
+      "fame": 86.2596428779377,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 1512
+    },
+    {
+      "title": "自河南经乱关内阻饥兄弟离散各在一处因望月有感聊书所怀寄上浮梁大兄於潜七兄乌江十五兄兼示符离及下邽弟妹",
+      "poet": "白居易",
+      "fame": 85.96849435181673,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 1465
+    },
+    {
+      "title": "梦游天姥吟留别",
+      "poet": "李白",
+      "fame": 85.92176281258035,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 1333
+    },
+    {
+      "title": "寻陆鸿渐不遇",
+      "poet": "皎然",
+      "fame": 85.7980574898133,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 1542
+    },
+    {
+      "title": "送李少府贬峡中王少府贬长沙",
+      "poet": "高适",
+      "fame": 85.75889548303415,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 1466
+    },
+    {
+      "title": "旅夜书怀",
+      "poet": "杜甫",
+      "fame": 85.49126541435881,
+      "in_tang300": true,
+      "in_qianjia": true,
+      "gushiwen_stars": 1211
+    },
+    {
+      "title": "送别",
+      "poet": "王维",
+      "fame": 85.08665539427108,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 1165
+    },
+    {
+      "title": "新年作",
+      "poet": "刘长卿",
+      "fame": 84.93665546276492,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 1203
+    },
+    {
+      "title": "月夜",
+      "poet": "杜甫",
+      "fame": 84.91403324763404,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 1063
+    },
+    {
+      "title": "问刘十九",
+      "poet": "白居易",
+      "fame": 84.67374237176494,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 1102
+    },
+    {
+      "title": "登楼",
+      "poet": "杜甫",
+      "fame": 84.6523576050032,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 1002
+    },
+    {
+      "title": "左迁至蓝关示姪孙湘",
+      "poet": "韩愈",
+      "fame": 84.51463295535886,
+      "in_tang300": false,
+      "in_qianjia": true,
+      "gushiwen_stars": 1088
+    },
+    {
+      "title": "终南别业",
+      "poet": "王维",
+      "fame": 84.48431808166649,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 1019
+    },
+    {
+      "title": "早寒江上有怀",
+      "poet": "孟浩然",
+      "fame": 84.14592264213468,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 970
+    },
+    {
+      "title": "清平调 一",
+      "poet": "李白",
+      "fame": 84.13862147860425,
+      "in_tang300": true,
+      "in_qianjia": true,
+      "gushiwen_stars": 891
+    },
+    {
+      "title": "寻隐者不遇",
+      "poet": "贾岛",
+      "fame": 84.0999690428301,
+      "in_tang300": true,
+      "in_qianjia": true,
+      "gushiwen_stars": 1041
+    },
+    {
+      "title": "赠卫八处士",
+      "poet": "杜甫",
+      "fame": 84.07753359785829,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 880
+    },
+    {
+      "title": "走马川行奉送出师西征",
+      "poet": "岑参",
+      "fame": 83.9976727057159,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 967
+    },
+    {
+      "title": "送灵澈上人",
+      "poet": "刘长卿",
+      "fame": 83.93473775360759,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 967
+    },
+    {
+      "title": "渡汉江",
+      "poet": "宋之问",
+      "fame": 83.67850380483101,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 956
+    },
+    {
+      "title": "杂诗 一",
+      "poet": "佚名",
+      "fame": 83.6660780674056,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 1079
+    },
+    {
+      "title": "兵车行",
+      "poet": "杜甫",
+      "fame": 83.34625667862971,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 746
+    },
+    {
+      "title": "春思",
+      "poet": "李白",
+      "fame": 83.24458368111111,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 728
+    },
+    {
+      "title": "梦李白二首 二",
+      "poet": "杜甫",
+      "fame": 82.97514592280544,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 686
+    },
+    {
+      "title": "贾生",
+      "poet": "李商隐",
+      "fame": 82.96128294256411,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 735
+    },
+    {
+      "title": "和张仆射塞下曲 三",
+      "poet": "卢纶",
+      "fame": 82.9225212099717,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 802
+    },
+    {
+      "title": "游城南十六首 晚春",
+      "poet": "韩愈",
+      "fame": 82.55520275249002,
+      "in_tang300": false,
+      "in_qianjia": true,
+      "gushiwen_stars": 709
+    },
+    {
+      "title": "与史郎中钦听黄鹤楼上吹笛",
+      "poet": "李白",
+      "fame": 82.49117356217054,
+      "in_tang300": false,
+      "in_qianjia": true,
+      "gushiwen_stars": 614
+    },
+    {
+      "title": "夜上受降城闻笛",
+      "poet": "李益",
+      "fame": 82.41074175387887,
+      "in_tang300": true,
+      "in_qianjia": false,
+      "gushiwen_stars": 732
+    }
+  ]
+}

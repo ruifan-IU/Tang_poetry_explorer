@@ -60,9 +60,12 @@ export async function getFilteredPoems({
       tags: true,
       dynasty: true,
     },
-    orderBy: {
-      stars: 'desc',
-    },
+    orderBy: [
+      { fame: 'desc' },
+      {
+        stars: 'desc',
+      },
+    ],
     take: limit,
   });
 }
@@ -100,9 +103,12 @@ export async function searchPoems(query: string, limit = 20, type?: PoemType) {
       tags: true,
       dynasty: true,
     },
-    orderBy: {
-      stars: 'desc',
-    },
+    orderBy: [
+      { fame: 'desc' },
+      {
+        stars: 'desc',
+      },
+    ],
     take: limit,
   });
 }
@@ -136,7 +142,12 @@ export async function getPoetById(id: number) {
     include: {
       dynasty: true,
       poems: {
-        orderBy: { stars: 'desc' },
+        orderBy: [
+          { fame: 'desc' },
+          {
+            stars: 'desc',
+          },
+        ],
         take: 10,
       },
     },
@@ -190,7 +201,12 @@ export async function getTagById(id: number) {
           poet: true,
           dynasty: true,
         },
-        orderBy: { stars: 'desc' },
+        orderBy: [
+          { fame: 'desc' },
+          {
+            stars: 'desc',
+          },
+        ],
         take: 20,
       },
     },
@@ -224,14 +240,24 @@ export async function getDynastyById(id: number) {
     where: { id },
     include: {
       poets: {
-        orderBy: { stars: 'desc' },
+        orderBy: [
+          { fame: 'desc' },
+          {
+            stars: 'desc',
+          },
+        ],
         take: 10,
       },
       poems: {
         include: {
           poet: true,
         },
-        orderBy: { stars: 'desc' },
+        orderBy: [
+          { fame: 'desc' },
+          {
+            stars: 'desc',
+          },
+        ],
         take: 20,
       },
     },

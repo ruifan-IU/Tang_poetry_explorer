@@ -98,15 +98,17 @@ All `prisma:*` scripts read `.env`, not `.env.local`.
 | [chinese-poetry/chinese-poetry](https://github.com/chinese-poetry/chinese-poetry) | 全唐诗 poems and poet bios, plus the 唐诗三百首 and 千家诗 anthologies | MIT |
 | [Wikidata](https://www.wikidata.org/) | Poet identifiers (QIDs), aliases, birth and death dates, sitelink counts | CC0 |
 | [Wikimedia Commons](https://commons.wikimedia.org/) | Poet portraits (planned) | per file; attribution is stored with each image |
+| [古诗文网](https://www.gushiwen.cn/) (an older scrape) | Per-poem reader star counts, used only as a fame signal | not redistributed; the site's texts, translations and commentary are not used |
 
 ### Pipeline
 
 The scripts in [`scripts/`](scripts/) rebuild the Tang dataset from scratch:
 
 ```
-fetch_tang_data.py      download the corpus and run the Wikidata SPARQL query
-clean_tang_data.py      strip editorial notes, normalize authors, dedupe, convert to Simplified, score fame
+fetch_tang_data.py      download the corpus and run the Wikidata SPARQL queries
+clean_tang_data.py      strip editorial notes, normalize authors, dedupe, convert to Simplified, collect fame signals
 match_wikidata_poets.py link local poets to Wikidata items
+score_fame.py           score poet and poem fame, which the app sorts by
 ```
 
 Main data decisions:
@@ -115,17 +117,23 @@ Main data decisions:
   `（一作…）`, are removed from the displayed text but kept per poem.
 - **Unknown authors.** The source uses about a dozen terms for an unknown author
   (不詳, 無名氏, 缺名…). These are merged into a single 佚名 poet.
-- **Fame.** Poem fame comes from curated anthologies, not search-engine hit
-  counts, which mostly measured how common a title is. A poem counts as
-  appearing in an anthology even when its text differs slightly (异文).
+- **Fame.** Poem fame comes from curated anthologies and 古诗文网 reader votes,
+  not search-engine hit counts, which mostly measured how common a title is.
+  Poet fame adds Wikidata sitelinks, but only as an amplifier of poetry
+  evidence, so emperors and monks famous for other reasons don't rank as
+  poets. A poem counts as appearing in an anthology even when its text
+  differs slightly (异文).
+- **Attribution.** When 全唐诗 prints one poem under two poets, the copy whose
+  poet an anthology or 古诗文网 confirms is kept, and the other attribution
+  goes into the poem's notes.
 
 Every step writes a review report to `prisma/data/audit/` so the decisions can
 be checked by hand. [`scripts/README.md`](scripts/README.md) has the full details.
 
 > **Status:** the database is currently seeded from an older multi-dynasty
 > subset in `prisma/data/dev/`. The new Tang pipeline will replace it once the
-> Prisma schema and `prisma/seed.ts` are updated for its output: fame,
-> Wikidata IDs and portraits.
+> Prisma schema and `prisma/seed.ts` are updated for its output: fame
+> (already in the schema), Wikidata IDs and portraits.
 
 ## Project structure
 
@@ -166,6 +174,7 @@ User ─< UserMemorization >┘   (easeFactor, interval, repetitions, masteryLev
 - `Poem.type` is `shi`, `ci` or `wen`.
 - `Poem.contentHash` is a unique SHA-256 of the content, used to deduplicate poems.
 - `stars` on `Poem` and `Poet` counts how many users have favorited them.
+- `fame` on `Poem` and `Poet` is the pipeline's score (0–100) from `score_fame.py`.
 
 ## Design notes
 
