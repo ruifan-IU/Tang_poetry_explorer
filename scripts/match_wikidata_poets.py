@@ -119,6 +119,20 @@ def build_index(candidates: list[dict], *keys: str) -> dict[str, list[dict]]:
     return index
 
 
+DATE_TOLERANCE = 15  # years; CBDB and Wikipedia dates for 丘为 differ by 9
+
+
+def _dates_conflict(a: dict, b: dict) -> bool:
+    """True if a known birth or death year of a and b differ by more than
+    DATE_TOLERANCE. Missing years are unknown, so they never conflict."""
+    return any(
+        a[key] is not None
+        and b[key] is not None
+        and abs(a[key] - b[key]) > DATE_TOLERANCE
+        for key in ("birthYear", "deathYear")
+    )
+
+
 def resolve_ambiguous(
     name: str, candidates: list[dict], local_names: set[str]
 ) -> dict | None:
@@ -134,7 +148,9 @@ def resolve_ambiguous(
     1. Reject items whose label is a different local poet.
     2. Keep only Tang poets (isTangPoet), if there are any. This comes
        before sitelinks so a famous namesake (王建 the Former Shu emperor)
-       can't beat the poet.
+       can't beat the poet. If the Tang poets are all empty items and one
+       untagged candidate has sitelinks and compatible dates, it is kept
+       too (常建).
     3. A unique highest sitelink count wins.
     4. Tied candidates are accepted as duplicate items only if they share a
        known year and no years conflict.
@@ -158,8 +174,27 @@ def resolve_ambiguous(
 
     # Step 2: if any candidates are Tang poets on Wikidata, keep only those.
     # One left wins; several go on to steps 3-4, which choose among them.
-    if any(c["isTangPoet"] for c in filtered_candidates):
-        filtered_candidates = [c for c in filtered_candidates if c["isTangPoet"]]
+    # Exception: if every Tang-tagged candidate is an empty item (0
+    # sitelinks) and exactly one untagged candidate has Wikipedia articles,
+    # with no conflicting dates, it stays in too, and step 3 picks it. That
+    # pattern is usually one person in two items -- a bulk-imported CBDB
+    # item with the Tang tag, and the Wikipedia-backed item without it
+    # (常建: Q45596202 vs Q1111062). It must be the only one: several
+    # untagged items with sitelinks (周朴, 张登) mean a common name, not a
+    # duplicate. The date check keeps out namesakes such as the Huayan
+    # patriarch 法藏 (643-712) for the poet 法藏 (744-825).
+    tang_poets = [c for c in filtered_candidates if c["isTangPoet"]]
+    if tang_poets:
+        with_sitelinks = [
+            c for c in filtered_candidates if not c["isTangPoet"] and c["sitelinks"] > 0
+        ]
+        if (
+            all(c["sitelinks"] == 0 for c in tang_poets)
+            and len(with_sitelinks) == 1
+            and not any(_dates_conflict(with_sitelinks[0], t) for t in tang_poets)
+        ):
+            tang_poets = tang_poets + with_sitelinks
+        filtered_candidates = tang_poets
     if len(filtered_candidates) == 1:
         return filtered_candidates[0]
 

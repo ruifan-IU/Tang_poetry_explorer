@@ -6,6 +6,8 @@ pipeline covers **Tang poetry**. Its sources are:
 - [chinese-poetry/chinese-poetry](https://github.com/chinese-poetry/chinese-poetry):
   全唐诗 (Complete Tang Poems), 唐诗三百首 and 千家诗.
 - [Wikidata](https://www.wikidata.org/): poet identifiers, portraits, dates and aliases.
+- An older scrape of [古诗文网](https://www.gushiwen.cn/) (`prisma/data/raw/LCPoetry*.json`,
+  not committed): only its per-poem reader star counts are used, as a fame signal.
 
 ```
 fetch_tang_data.py ──► prisma/data/raw/tang/          raw downloads (not committed)
@@ -14,7 +16,10 @@ clean_tang_data.py ──► prisma/data/cleaned/tang/      seed input (not comm
         │          └─► prisma/data/audit/tang/        reports for manual review
         │
 match_wikidata_poets.py ─► cleaned/tang/poet_wikidata.json
-                       └─► audit/tang/wikidata_matches.json
+        │              └─► audit/tang/wikidata_matches.json
+        │
+score_fame.py ───────► adds `fame` to cleaned/tang/poets.json and poems.json
+        │          └─► audit/tang/fame_top.json
         │
 prisma/seed.ts ──────► Postgres
 ```
@@ -163,25 +168,51 @@ several paragraph entries. Nested brackets are handled.
   full-width space becomes 、). Most are 郊廟歌辭 hymns that the source credits
   to a group; they are kept as joint "poets" for now (see the checklist).
 
-**Dedupe.** Poems are deduplicated by SHA-256 of the cleaned Simplified content,
-the same `contentHash` that `prisma/seed.ts` computes. Copies that differ only in
-their notes collapse into one, and the first copy wins.
+**Dedupe and attribution.** Poems are deduplicated by SHA-256 of the cleaned
+Simplified content, the same `contentHash` that `prisma/seed.ts` computes.
+Copies that differ only in their notes collapse into one.
 
-**Fame.** The search-hit "rank" data was dropped because it measured how common
-a title is, not how famous the poem is: generic titles like 句 scored far above
-登鸛雀樓. Fame now comes from membership in curated anthologies:
+全唐诗 often prints one poem under two poets (互见诗). Keeping the first copy in
+corpus order showed 登鹳雀楼 as 朱斌's 登楼 and 寻隐者不遇 as 孙革's 访羊尊师.
+So all copies are grouped by hash first, and `choose_attribution()` keeps the
+copy whose poet has the most evidence:
+
+1. an anthology lists the poem under that poet;
+2. 古诗文网 lists it under that poet;
+3. a named poet beats 佚名.
+
+Without any evidence the first copy is kept, as before. The other
+attributions are kept in the poem's `notes` (`互见朱斌《登楼》`).
+
+**Fame signals.** The search-hit "rank" data was dropped because it measured how
+common a title is, not how famous the poem is: generic titles like 句 scored far
+above 登鸛雀樓. Each poem now records its evidence in `fameSignals`:
 
 - `in_tang300`: the poem appears in 唐诗三百首;
 - `in_qianjia`: the poem appears in 千家诗;
-- `poet_anthology_poems`: how many of the poet's poems appear in those anthologies.
+- `gushiwen_stars`: 古诗文网 reader votes for the poem (将进酒 32,615; median 1).
+  These measure modern familiarity, while the anthologies measure the canon.
+  Only the counts are used, not the site's translations or commentary.
 
-Poems are matched to the anthologies by their first line, using CJK characters
-only. When that fails, a fuzzy match against the same poet's poems
-(similarity ≥ 0.75) catches variant readings (异文), such as 床前看月光 vs. 床前明月光.
+The scores are computed later, by `score_fame.py`, because the poet score also
+needs Wikidata sitelinks. `stars` in the app stays a pure count of user favorites.
 
-The raw signals are saved per poem as `fameSignals`. Combining them into a
-0–100 `fame` score is still a TODO in `fame_score()`. `stars` in the app remains
-a pure count of user favorites.
+Poems are matched to the anthologies and to 古诗文网 by their first sentence,
+using CJK characters only. The key ends at the first 。？！ or line break, but
+holds at least one five-character couplet, because a question can end
+mid-couplet (何处秋风至？萧萧送鴈群。). A sentence rather than a line, because
+sources break lines differently: 全唐诗 has one couplet per line, 古诗文网 often
+two. When the exact key fails, a fuzzy match against the same poet's poems
+(similarity ≥ 0.75) catches variant readings (异文), such as 床前看月光 vs.
+床前明月光.
+
+Two more rules apply to the 古诗文网 stars:
+
+- A leading prose preface is skipped (琵琶行 starts with 元和十年，予左迁…),
+  because 全唐诗 moves it to the notes.
+- A match under a different poet is rejected if that poet is also a local
+  poet, since it is the other attribution of a 互见 poem. Matches under a
+  spelling variant (顾夐 for 顾敻) or with no poet are kept.
 
 All text is converted to Simplified Chinese (OpenCC `t2s`) after cleaning.
 
@@ -190,8 +221,8 @@ All text is converted to Simplified Chinese (OpenCC `t2s`) after cleaning.
 `prisma/data/cleaned/tang/` (seed input):
 
 - `poems.json`: one entry per poem, with these fields: `title`, `content`,
-  `contentHash`, `poetName`, `dynasty`, `type`, `tags`, `notes`, `fame` and
-  `fameSignals`.
+  `contentHash`, `poetName`, `dynasty`, `type`, `tags`, `notes` and
+  `fameSignals` (`fame` is added by `score_fame.py`).
 - `poets.json`: `name`, `introduction` (the longest bio among the duplicate
   entries) and `dynasty`.
 - `dynasties.json`, `tags.json`.
@@ -203,10 +234,13 @@ All text is converted to Simplified Chinese (OpenCC `t2s`) after cleaning.
   10 characters of text.
 - `author_list.json`: poets sorted by poem count, with every raw spelling that
   was folded into each one.
+- `duplicate_attributions.json`: every duplicate credited to more than one
+  poet, with the copy kept and the reason. Changed decisions come first.
 
 Latest run: 56,446 unique poems (964 duplicates removed), 3,614 poets,
-1,869 poems under 佚名, 355 matched to 唐诗三百首 and 140 to 千家诗,
-435 flagged for review.
+1,863 poems under 佚名, 355 matched to 唐诗三百首 and 140 to 千家诗,
+41,145 with a 古诗文网 star count, 435 flagged for review. 358 duplicates were
+credited to more than one poet; 56 of them now keep a later copy on evidence.
 
 Hashing only catches exact copies. About 20 of the joint-author hymns also
 appear under one of their authors with a few variant characters (升圓丘 /
@@ -264,6 +298,10 @@ a wrong match (another person's portrait and dates) is worse than no match:
    left it is used; if none are left the poet stays unmatched.
 2. **Tang poets:** if any candidates have `isTangPoet`, only those are kept.
    If one is left it is used; several go on to steps 3–4, which choose among them.
+   One exception: if every Tang poet is an empty item (0 sitelinks) and
+   exactly one other candidate has sitelinks, with no birth or death year more
+   than 15 years apart, that candidate is kept too, and step 3 picks it. See
+   below.
 3. **Sitelinks:** a candidate with a unique highest sitelink count is used.
    Candidates tied for the highest count go on to step 4.
 4. **Duplicate items:** the tied candidates are accepted as duplicate items for
@@ -281,10 +319,24 @@ before popularity:
 - 王建 the poet (9 sitelinks) would lose to 王建 the founder of Former Shu (16
   sitelinks); step 2 prevents that.
 
-Step 2 has a known cost. Rulers of the Five Dynasties and Ten Kingdoms states
-are not tagged as Tang poets, so an empty bulk-imported item with the same name
-and a Tang tag beats them. 李煜 and 李璟 (the Southern Tang rulers) both went
-wrong this way.
+Step 2 has a known cost. Many poets have two Wikidata items: a bulk import
+from CBDB (China Biographical Database), tagged as a Tang poet but empty, and a
+Wikipedia-backed item without the tag. Plain step 2 always chose the empty
+one: 常建 got Q45596202 (0 sitelinks) instead of Q1111062 (8), which also cost
+him his dates and his fame score. The exception fixes 284 poets this way
+(常建, 金昌绪, 丘为, 张泌, 曹邺…) and lets 29 unresolved poets resolve, without
+losing any match. It was narrowed twice, on evidence from the diff:
+
+- **Dates must not conflict.** Without the check, 12 poets moved to namesakes
+  from other centuries: the poet 法藏 (744–825) became the Huayan patriarch
+  法藏 (643–712). CBDB and Wikipedia dates for one person often differ by a
+  few years (丘为 703 / 694), hence the 15-year tolerance.
+- **Exactly one candidate with sitelinks.** Several (周朴, 张登, 王琚) mean a
+  common name, not a duplicate item, and the poet keeps the Tang item.
+
+Rulers of the Five Dynasties and Ten Kingdoms states still go wrong when an
+empty Tang item and *several* other items share their name: 李煜 and 李璟 (the
+Southern Tang rulers) are fixed with manual matches.
 
 **Manual matches.** `MANUAL_MATCHES` maps a local poet to a QID and skips
 matching entirely (`matchMethod: "manual"`). It is for poets the rules get
@@ -293,7 +345,7 @@ wrong, and each entry carries a comment with its evidence:
 | Poet | QID | Evidence |
 |---|---|---|
 | 李昂 | Q45500865 | CBDB 92964: 考功員外郎, 知貢舉 in 開元24 (736), as in his bio |
-| 李煜 | Q378528 | the Southern Tang ruler (後主煜), not the Tang item that step 2 prefers |
+| 李煜 | Q378528 | the Southern Tang ruler (後主煜), not the empty Tang item Q45512023 |
 | 李璟 | Q718254 | aliases 伯玉 and 南唐元宗 match his bio (字伯玉 … 諡元宗) |
 
 The script stops with an error if an entry's name is no longer a local poet or
@@ -314,10 +366,10 @@ Outputs:
     they are candidates for merging. They can also expose a wrong match: 李昂
     showed up only once 唐文宗 matched the same item.
 
-Latest run: 2,912 of 3,614 poets matched, covering 52,381 of 56,446 poems
-(93%). 1,241 name clashes were resolved, 221 left for review (211 from labels,
+Latest run: 2,941 of 3,614 poets matched, covering 52,549 of 56,446 poems
+(93%). 1,270 name clashes were resolved, 192 left for review (182 from labels,
 10 from aliases), 3 poets are matched manually, and 481 have no candidate at
-all. There are 32 collisions. Before the by-name lookup it was 2,371 poets and
+all. There are 30 collisions. Before the by-name lookup it was 2,371 poets and
 46,037 poems.
 
 Combining labels and aliases corrected 40 matches, but moved 16 poets that
@@ -327,9 +379,69 @@ spelling 牛𫊸, probably a duplicate item), 卢殷 (卢隠, with conflicting d
 For 子兰 the old match was probably wrong, so review is the better outcome.
 Preferring label matches among several Tang poets would resolve some of these.
 
+## 4. Score fame: `score_fame.py`
+
+```bash
+python3 scripts/score_fame.py
+```
+
+This runs after `match_wikidata_poets.py`, because the poet score uses Wikidata
+sitelinks. It rewrites `poets.json` and `poems.json` in place with a `fame`
+field, an unrounded float from 0 to 100 that the app sorts by. Both files are
+written to a temp file first and then renamed, because the script overwrites
+its own input. It's safe to re-run, and takes about a second, so the weights
+can be tuned without re-running the cleaning step.
+
+**Poets are scored first**, from four inputs collected per poet:
+
+| Input | Measures | Example |
+|---|---|---|
+| `sitelinks` | fame as a *person* | 李白 199, but also 玄奘 77, 空海 49 |
+| `anthologyPoems` | standing in the canon | 杜甫 63, 李白 53 |
+| `starsTotal` | modern familiarity, whole output | 李白 227,760 |
+| `starsMax` | modern familiarity, best-known poem | 张若虚 21,548 from 3 poems |
+
+Each input is put on a log scale from 0 to 1 against a fixed saturation point,
+not the data's maximum, so one poet's count changing doesn't shift everyone's
+score. Then:
+
+```
+poetry = (anthology + (starsTotal + starsMax) / 2) / 2
+fame   = 100 × poetry × (1 + sitelinks / 2) / 1.5
+```
+
+- The two star inputs are averaged into one value, because they measure the
+  same thing. Adding them separately would give stars half the weight;
+  multiplying them would square them.
+- Sitelinks *amplify* the poetry evidence (×⅔ to ×1) instead of adding to it.
+  Without any poetry evidence a poet scores 0, however famous: 玄奘, 李渊 and
+  空海 wrote little and are known for other reasons.
+- 佚名 scores 0: its star total adds up poems by many unrelated authors.
+
+Poet fame was also a data-quality check. Well-known poets with 0 sitelinks
+pointed to the step 2 problem described above (常建).
+
+**Poems are scored second**, from their own signals (`in_tang300`,
+`in_qianjia`, `gushiwen_stars`) with the poet's score as a prior: the poem's
+own evidence should decide where there is some, and the poet's fame orders
+the roughly 15,000 poems with none. `poem_fame()` is not written yet.
+
+The 全唐诗 poem count is deliberately not used. It measures output, not fame:
+易静 has 720 poems and no other signal, while 王之涣 has 7.
+
+Output: `audit/tang/fame_top.json` lists the top 100 poets and poems with their
+inputs, to check the ranking by eye.
+
+Latest run: 2,309 poets score above 0, with a median of 2.0. The top five are
+李白 98.4, 杜甫 94.7, 王维 78.0, 李商隐 74.0 and 孟浩然 69.3.
+
 ## Status and next steps
 
-- [ ] `fame_score()` in `clean_tang_data.py`: combine the anthology signals into `fame`.
+- [x] Fame signals: anthologies plus 古诗文网 star counts, and duplicates
+      attributed by evidence instead of corpus order.
+- [x] `poet_fame()` in `score_fame.py`.
+- [ ] `poem_fame()` in `score_fame.py`: the poem's own signals, with the poet's
+      score as a prior.
 - [x] `resolve_ambiguous()` in `match_wikidata_poets.py`: the rule for name clashes.
 - [x] Unmatched famous poets (齐己, 贯休, 皮日休…): found by the by-name lookup.
 - [x] Cross-tier matching in `match_poet()`: label and alias matches compete
@@ -339,24 +451,26 @@ Preferring label matches among several Tang poets would resolve some of these.
 - [x] Title-style names (太宗皇帝, 則天皇后, 後主煜, 僧貫休): renamed in
       `normalize_author()`, and `foundBy` names indexed as aliases.
 - [x] Manual matches for poets the rules get wrong (李昂, 李煜, 李璟).
-- [ ] Merge the remaining duplicate local poets found by `collisions` (32) and
+- [ ] Merge the remaining duplicate local poets found by `collisions` (30) and
       by candidates whose `foundBy` lists two local names. The emperors are done.
 - [ ] Joint-author poems (趙光逢、張衮…): drop the near-duplicate hymns that
       also appear under one author (fuzzy matching, since hashes miss variant
       characters), and decide whether co-authorship needs a many-to-many
       `Poem`–`Poet` relation.
-- [ ] Optional: limit step 2 so that a Five Dynasties ruler with sitelinks
-      isn't beaten by an empty Tang-tagged item (李煜, 李璟), if more such
-      cases show up.
+- [x] Step 2 exception: an empty Tang-tagged item no longer beats the single
+      Wikipedia-backed item for the same person (284 poets, e.g. 常建).
 - [ ] Portraits: download the `P18` images from Wikimedia Commons with their
       license and author metadata, resize them to WebP, and save them in
       `public/portraits/<QID>.webp`.
-- [ ] Update `prisma/schema.prisma` (`fame`, `wikidataId`, portrait fields) and
-      `prisma/seed.ts`. The seed script still expects the old data shape.
+- [ ] Update `prisma/schema.prisma` and `prisma/seed.ts`. `fame` (Float) is
+      in the schema next to `stars`; `wikidataId`, years and portrait fields
+      are still to add. The seed script still expects the old data shape, and
+      should start `stars` at 0, since 古诗文网 votes now go into `fame`.
 - [ ] Wikidata contributions from the gaps found here: add `P106 = poet` to
       Tang poets without it (貫休), add the 全唐诗 spellings as aliases (龐藴 on
-      Q6505629), add `P31 = human` where missing, and review likely duplicate
-      items listed under `ambiguous`.
+      Q6505629), add `P31 = human` where missing, review likely duplicate
+      items listed under `ambiguous`, and the CBDB / Wikipedia item pairs that
+      the step 2 exception found (merge where they are one person).
 
 ## Legacy scripts
 

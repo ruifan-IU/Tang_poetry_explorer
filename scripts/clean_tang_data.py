@@ -11,12 +11,14 @@ into the JSON shape the seed script expects.
 - Dedupes poems by a hash of the *cleaned* Simplified content (same as
   prisma/seed.ts computes), so copies that differ only in notes collapse.
 - Converts title/content/poet bios to Simplified Chinese for display.
-- Scores `fame` from membership in curated anthologies (唐诗三百首, 千家诗),
-  a poet-level prior, and 古诗文网 reader star counts (from the older
-  dataset in prisma/data/raw/LCPoetry*.json). The rank/ search-hit counts are no longer used:
-  they come from unquoted title+author searches, so generic titles like
-  句 or 又歌 score 10^8 while 登鸛雀樓 scores ~2000 on Baidu. `stars`
-  stays a pure in-app favorite counter.
+- Records per-poem fame evidence in `fameSignals`: membership in curated
+  anthologies (唐诗三百首, 千家诗) and 古诗文网 reader star counts (from the
+  older dataset in prisma/data/raw/LCPoetry*.json). The scores themselves
+  are computed later by score_fame.py, which also needs the Wikidata
+  sitelinks from match_wikidata_poets.py. The rank/ search-hit counts are
+  no longer used: they come from unquoted title+author searches, so generic
+  titles like 句 or 又歌 score 10^8 while 登鸛雀樓 scores ~2000 on Baidu.
+  `stars` stays a pure in-app favorite counter.
 
 Input:  prisma/data/raw/tang/
 Output: prisma/data/cleaned/tang/   seed input (poets, poems, dynasties, tags)
@@ -122,12 +124,10 @@ def simplified_key(paragraphs: list[str]) -> str:
     return first_line_key(t2s.convert(content))
 
 
-def load_anthologies(known_authors: set[str]) -> tuple[list[dict], Counter]:
+def load_anthologies(known_authors: set[str]) -> list[dict]:
     """
-    Returns (entries, poet_counts):
-      entries      -- one dict per anthology poem: anthology, id, poet,
-                      first-line key, tags
-      poet_counts  -- simplified poet name -> poems across all anthologies
+    Returns one dict per anthology poem: anthology, id, poet, first-line
+    key, tags.
     """
     entries = []
 
@@ -173,8 +173,7 @@ def load_anthologies(known_authors: set[str]) -> tuple[list[dict], Counter]:
     else:
         print("  warning: 千家诗.json missing -- run scripts/fetch_tang_data.py")
 
-    poet_counts = Counter(e["poet"] for e in entries)
-    return entries, poet_counts
+    return entries
 
 
 def load_gushiwen_stars(known_authors: set[str]) -> list[dict]:
@@ -270,24 +269,6 @@ class AnthologyMatcher:
         return list(found.values())
 
 
-def fame_score(signals: dict) -> int:
-    """
-    Combine anthology signals into a 0-100 fame score.
-
-    signals = {
-        "in_tang300":   bool,  # poem is in 唐诗三百首
-        "in_qianjia":   bool,  # poem is in 千家诗
-        "poet_anthology_poems": int,  # how many of this poet's poems are
-                                      # in either anthology (李白 ~40, most 0)
-        "gushiwen_stars": int,  # 古诗文网 reader votes for this poem: 0 for
-                                # ~15,000 unmatched poems, median 1, 173
-                                # poems >= 1,000, max 32,615 (将进酒)
-    }
-    """
-    # TODO(human)
-    return 0
-
-
 def choose_attribution(copies: list[dict]) -> tuple[dict, str]:
     """
     Pick the copy to keep among identical poems (same contentHash).
@@ -331,7 +312,7 @@ def main():
     print(f"  {len(raw_poems)} raw poem entries")
 
     print("Loading anthologies...")
-    anthology_entries, poet_counts = load_anthologies(known_authors)
+    anthology_entries = load_anthologies(known_authors)
     matcher = AnthologyMatcher(anthology_entries)
     for name, count in Counter(e["anthology"] for e in anthology_entries).items():
         print(f"  {name}: {count} Tang poems")
@@ -340,7 +321,7 @@ def main():
     print("Loading 古诗文网 star counts...")
     star_entries = load_gushiwen_stars(known_authors)
     # A separate matcher: these aren't anthologies, so they must not feed
-    # poet_counts or the anthology tags.
+    # the anthology tags.
     star_matcher = AnthologyMatcher(star_entries)
     print(f"  {len(star_entries)} Tang and Five Dynasties poems")
     matched_star_entries = set()
@@ -428,9 +409,6 @@ def main():
         signals = {
             "in_tang300": "唐诗三百首" in in_anthology,
             "in_qianjia": "千家诗" in in_anthology,
-            "poet_anthology_poems": (
-                poet_counts.get(poet_name, 0) if poet_name != UNKNOWN_POET_NAME else 0
-            ),
             # The site sometimes lists a poem twice; take the higher count.
             "gushiwen_stars": max((e["stars"] for e in star_matches), default=0),
         }
@@ -470,8 +448,7 @@ def main():
                 "type": "shi",
                 "tags": anthology_tags,
                 "notes": notes,
-                "fame": fame_score(signals),
-                "fameSignals": signals,
+                "fameSignals": signals,  # scored by score_fame.py
             }
         )
 
