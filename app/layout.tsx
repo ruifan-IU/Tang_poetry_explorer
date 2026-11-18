@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
-import { Long_Cang, Ma_Shan_Zheng, Noto_Serif_SC, ZCOOL_XiaoWei } from "next/font/google";
+import { Long_Cang, Ma_Shan_Zheng, Noto_Serif_SC } from "next/font/google";
 import { Navbar } from "./components/Navbar";
 import { DEFAULT_POEM_FONT, POEM_FONT_COOKIE, isPoemFont } from "@/lib/poem-fonts";
 // LXGW WenKai GB (霞鹜文楷) isn't on Google Fonts; this package ships it
@@ -9,7 +9,7 @@ import "lxgw-wenkai-gb-web/lxgwwenkaigb-regular/result.css";
 import "./globals.css";
 
 // Poem typefaces the reader can choose (lib/poem-fonts.ts; the stacks are in
-// globals.css). There is no CJK subset to preload, so nothing is preloaded:
+// globals.css). Noto Serif SC is also the UI font. There is no CJK subset to preload, so nothing is preloaded:
 // each stylesheet splits its font into unicode-range chunks, and a browser
 // downloads only the chunks for characters on the page, in the font in use.
 const notoSerifSC = Noto_Serif_SC({
@@ -20,12 +20,6 @@ const notoSerifSC = Noto_Serif_SC({
 const maShanZheng = Ma_Shan_Zheng({
   weight: "400",
   variable: "--font-ma-shan-zheng",
-  display: "swap",
-  preload: false,
-});
-const zcoolXiaoWei = ZCOOL_XiaoWei({
-  weight: "400",
-  variable: "--font-zcool-xiaowei",
   display: "swap",
   preload: false,
 });
@@ -58,7 +52,7 @@ export default async function RootLayout({
     <html
       lang="zh-CN"
       data-poem-font={poemFont}
-      className={[notoSerifSC, maShanZheng, zcoolXiaoWei, longCang]
+      className={[notoSerifSC, maShanZheng, longCang]
         .map((font) => font.variable)
         .join(" ")}
     >

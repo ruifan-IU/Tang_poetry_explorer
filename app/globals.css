@@ -8,10 +8,11 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  /* UI: the system sans, so no download (PingFang on Apple, Microsoft YaHei
-     on Windows, Noto Sans CJK on Linux and Android). */
-  --font-sans: system-ui, -apple-system, "PingFang SC", "Hiragino Sans GB",
-    "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+  /* UI: Noto Serif SC (思源宋体), the same face as the default poem font.
+     Tailwind's font-sans is the default for all text, so this sets the UI
+     font; system Song faces cover the moment before it loads. */
+  --font-sans: var(--font-noto-serif-sc), "Songti SC", "Noto Serif CJK SC",
+    "SimSun", serif;
   /* Poem text: the typeface the reader picked (--poem-font, below). */
   --font-serif: var(--poem-font);
 }
@@ -33,10 +34,6 @@
 }
 [data-poem-font="mashanzheng"] {
   --poem-font: var(--font-ma-shan-zheng), "LXGW WenKai GB",
-    var(--font-noto-serif-sc), serif;
-}
-[data-poem-font="xiaowei"] {
-  --poem-font: var(--font-zcool-xiaowei), "LXGW WenKai GB",
     var(--font-noto-serif-sc), serif;
 }
 [data-poem-font="longcang"] {

@@ -5,7 +5,6 @@ export const POEM_FONTS = [
   { id: 'noto', label: '思源宋体' },
   { id: 'wenkai', label: '霞鹜文楷' },
   { id: 'mashanzheng', label: '马善政楷书' },
-  { id: 'xiaowei', label: '站酷小薇' },
   { id: 'longcang', label: '龙藏行书' },
 ] as const;
 
