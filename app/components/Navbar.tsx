@@ -1,11 +1,13 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
 import { getCurrentUser } from '@/lib/auth';
+import type { PoemFontId } from '@/lib/poem-fonts';
+import { FontSwitcher } from './FontSwitcher';
 import { NavSearch } from './NavSearch';
 import { UserMenu } from './UserMenu';
 import { VerificationBanner } from './VerificationBanner';
 
-export async function Navbar() {
+export async function Navbar({ poemFont }: { poemFont: PoemFontId }) {
   const user = await getCurrentUser();
 
   return (
@@ -16,7 +18,7 @@ export async function Navbar() {
       <div className='container mx-auto flex flex-wrap items-center justify-between gap-y-3 px-4 py-4'>
         {/* Logo/Brand */}
         <Link href='/' className='flex items-center gap-2'>
-          <span className='text-2xl font-bold text-zinc-900'>诗词探索</span>
+          <span className='text-2xl font-bold text-zinc-900'>唐诗博览</span>
         </Link>
 
         {/* useSearchParams() needs a Suspense boundary outside it */}
@@ -27,27 +29,26 @@ export async function Navbar() {
         {/* Navigation Links */}
         <div className='flex items-center gap-6'>
           <Link
-            href='/'
+            href='/about'
             className='text-zinc-700 transition-colors hover:text-zinc-900'
           >
-            探索
+            关于
           </Link>
-          {user && (
-            <>
-              <Link
-                href='/favorites'
-                className='text-zinc-700 transition-colors hover:text-zinc-900'
-              >
-                收藏
-              </Link>
-              <Link
-                href='/memorization'
-                className='text-zinc-700 transition-colors hover:text-zinc-900'
-              >
-                背诵
-              </Link>
-            </>
-          )}
+          <FontSwitcher initialFont={poemFont} />
+          {/* Shown signed out too, so readers can find these features; the
+              login page sends them on to the page once they've signed in. */}
+          <Link
+            href={user ? '/favorites' : '/login?redirect=/favorites'}
+            className='text-zinc-700 transition-colors hover:text-zinc-900'
+          >
+            收藏
+          </Link>
+          <Link
+            href={user ? '/memorization' : '/login?redirect=/memorization'}
+            className='text-zinc-700 transition-colors hover:text-zinc-900'
+          >
+            背诵
+          </Link>
 
           {/* Auth Section */}
           {user ? (

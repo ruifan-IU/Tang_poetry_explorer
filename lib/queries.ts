@@ -1,5 +1,5 @@
 import { prisma } from './prisma';
-import { Prisma, PoemType } from './prisma-client';
+import { PoemType } from './prisma-client';
 
 // ========== Poems ==========
 
@@ -40,16 +40,19 @@ export async function getRecommendedPoemsPage(
   limit = FEED_PAGE_SIZE
 ) {
   const bands = recommendationBands();
-  // Band index i for fame >= bands[i]. The index is ours, not user input,
-  // so it goes in as a literal; thresholds and seed are bound parameters.
-  const band = Prisma.sql`CASE ${Prisma.join(
-    bands.map((t, i) => Prisma.sql`WHEN "fame" >= ${t} THEN ${Prisma.raw(String(i))}`),
-    ' '
-  )} END`;
+  // A poem's band is the number of thresholds above its fame: 0 for
+  // fame >= bands[0], 1 for bands[1] <= fame < bands[0], and so on. The
+  // thresholds go in as one bound array rather than a nested Prisma.sql
+  // fragment, which a hot-reloaded dev server's cached client can't
+  // recognize and binds as a value -- silently dropping the band order.
   const rows = await prisma.$queryRaw<{ id: number }[]>`
     SELECT "id" FROM "Poem"
     WHERE "fame" >= ${bands[bands.length - 1]}
-    ORDER BY ${band}, md5("id"::text || ${seed}), "id"
+    ORDER BY
+      (SELECT count(*) FROM unnest(${bands}::float8[]) AS b(threshold)
+        WHERE "fame" < b.threshold),
+      md5("id"::text || ${seed}),
+      "id"
     LIMIT ${limit} OFFSET ${offset}
   `;
   const ids = rows.map((r) => r.id);
@@ -314,4 +317,18 @@ export async function getDynastyById(id: number) {
       },
     },
   });
+}
+
+// ========== Site ==========
+
+/**
+ * How many poems, poets and tags the collection holds (the About page).
+ */
+export async function getCollectionStats() {
+  const [poems, poets, tags] = await Promise.all([
+    prisma.poem.count(),
+    prisma.poet.count(),
+    prisma.tag.count(),
+  ]);
+  return { poems, poets, tags };
 }

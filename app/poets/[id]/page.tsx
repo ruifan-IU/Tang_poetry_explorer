@@ -66,7 +66,7 @@ export default async function PoetDetailPage(props: { params: Params }) {
                       <h3 className='mb-2 text-lg font-semibold text-zinc-900'>
                         {poem.title}
                       </h3>
-                      <p className='line-clamp-2 font-serif text-sm text-zinc-600'>
+                      <p className='line-clamp-2 font-serif text-base text-zinc-600'>
                         {poem.content.split('\n').slice(0, 2).join('\n')}
                       </p>
                     </div>

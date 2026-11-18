@@ -8,8 +8,40 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* UI: the system sans, so no download (PingFang on Apple, Microsoft YaHei
+     on Windows, Noto Sans CJK on Linux and Android). */
+  --font-sans: system-ui, -apple-system, "PingFang SC", "Hiragino Sans GB",
+    "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+  /* Poem text: the typeface the reader picked (--poem-font, below). */
+  --font-serif: var(--poem-font);
+}
+
+/* Poem typefaces, chosen with the 字体 menu (FontSwitcher) and set as
+   data-poem-font on <html>; the menu's own options set it too, to preview
+   each font. A character missing from the chosen font comes from the next
+   font that has it, so the brush fonts (~7,000 glyphs, missing 3,327 of the
+   corpus's 9,017 characters) fall back to LXGW WenKai GB, a 楷书 that has
+   all but 340, rather than to a Song face that would clash mid-line. */
+:root,
+[data-poem-font="noto"] {
+  --poem-font: var(--font-noto-serif-sc), "LXGW WenKai GB", "Songti SC",
+    "Noto Serif CJK SC", "SimSun", serif;
+}
+[data-poem-font="wenkai"] {
+  --poem-font: "LXGW WenKai GB", var(--font-noto-serif-sc), "Kaiti SC",
+    "KaiTi", serif;
+}
+[data-poem-font="mashanzheng"] {
+  --poem-font: var(--font-ma-shan-zheng), "LXGW WenKai GB",
+    var(--font-noto-serif-sc), serif;
+}
+[data-poem-font="xiaowei"] {
+  --poem-font: var(--font-zcool-xiaowei), "LXGW WenKai GB",
+    var(--font-noto-serif-sc), serif;
+}
+[data-poem-font="longcang"] {
+  --poem-font: var(--font-long-cang), "LXGW WenKai GB",
+    var(--font-noto-serif-sc), serif;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -22,5 +54,5 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
 }

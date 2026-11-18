@@ -70,7 +70,7 @@ export function PoemCard({
       </div>
 
       {/* Content Preview */}
-      <div className='mb-4 whitespace-pre-line font-serif text-zinc-700'>
+      <div className='mb-4 whitespace-pre-line font-serif text-xl leading-relaxed text-zinc-700'>
         {contentPreview}
         {hasMore && <span className='text-zinc-400'>...</span>}
       </div>

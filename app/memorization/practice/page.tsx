@@ -233,7 +233,7 @@ export default function PracticePage() {
                 </div>
               ) : (
                 <div>
-                  <div className="mb-8 whitespace-pre-line font-serif text-lg text-zinc-800 leading-relaxed">
+                  <div className="mb-8 whitespace-pre-line font-serif text-2xl text-zinc-800 leading-loose">
                     {memorization.poem.content}
                   </div>
 

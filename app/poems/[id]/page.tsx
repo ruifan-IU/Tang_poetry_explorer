@@ -65,7 +65,7 @@ export default async function PoemDetailPage(props: { params: Params }) {
           {/* Content */}
           <section className='mb-8'>
             <h2 className='mb-4 text-xl font-semibold text-zinc-900'>原文</h2>
-            <div className='whitespace-pre-line font-serif text-lg leading-relaxed text-zinc-800'>
+            <div className='whitespace-pre-line font-serif text-2xl leading-loose text-zinc-800'>
               {poem.content}
             </div>
           </section>

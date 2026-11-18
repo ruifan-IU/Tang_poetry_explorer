@@ -17,7 +17,7 @@ export async function sendVerificationEmail(
     const { data, error } = await resend.emails.send({
       from: process.env.FROM_EMAIL || 'onboarding@resend.dev',
       to: email,
-      subject: '验证您的邮箱 - 中国诗词探索',
+      subject: '验证您的邮箱 - 唐诗博览',
       html: `
         <!DOCTYPE html>
         <html>
@@ -78,7 +78,7 @@ export async function sendVerificationEmail(
           </head>
           <body>
             <div class="container">
-              <h1>欢迎来到中国诗词探索！</h1>
+              <h1>欢迎来到唐诗博览！</h1>
               <p>感谢您注册我们的平台。请点击下面的按钮验证您的邮箱地址：</p>
 
               <a href="${verificationUrl}" class="button">验证邮箱</a>
@@ -136,7 +136,7 @@ export async function sendReviewReminderEmail(
     const { data, error } = await resend.emails.send({
       from: process.env.FROM_EMAIL || 'onboarding@resend.dev',
       to: email,
-      subject: `您有 ${duePoems.length} 首诗词待复习 - 中国诗词探索`,
+      subject: `您有 ${duePoems.length} 首诗词待复习 - 唐诗博览`,
       html: `
         <!DOCTYPE html>
         <html>
@@ -224,7 +224,7 @@ export async function sendPasswordResetEmail(
     const { data, error } = await resend.emails.send({
       from: process.env.FROM_EMAIL || 'onboarding@resend.dev',
       to: email,
-      subject: '重置密码 - 中国诗词探索',
+      subject: '重置密码 - 唐诗博览',
       html: `
         <!DOCTYPE html>
         <html>
