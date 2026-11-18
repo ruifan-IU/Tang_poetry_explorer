@@ -56,9 +56,7 @@ export function PoemCard({
             onClick={handlePoetClick}
             className='mt-2 text-left hover:underline'
           >
-            <p className='text-sm text-zinc-600'>
-              {poem.poet.name}
-            </p>
+            <p className='text-sm text-zinc-600'>{poem.poet.name}</p>
           </button>
         </div>
         <div className='flex items-center gap-1 text-amber-600'>
@@ -70,27 +68,26 @@ export function PoemCard({
       </div>
 
       {/* Content Preview */}
-      <div className='mb-4 whitespace-pre-line font-serif text-xl leading-relaxed text-zinc-700'>
+      <div className='mb-4 whitespace-pre-line font-serif text-lg leading-relaxed text-zinc-700'>
         {contentPreview}
         {hasMore && <span className='text-zinc-400'>...</span>}
       </div>
 
       {/* Tags and Buttons */}
       <div className='flex items-center justify-between gap-4'>
-        <div className='flex flex-wrap gap-2 flex-1'>
+        {/* At most three tags, and only as many as fit on one line: the row
+            is one tag tall, so a tag that would wrap lands on a second line
+            that's cut off. Whole tags only -- nowrap keeps a tag's own text
+            from breaking onto two lines and showing half a tag. */}
+        <div className='flex h-6 min-w-0 flex-1 flex-wrap gap-2 overflow-hidden'>
           {poem.tags.slice(0, 3).map((tag) => (
             <span
               key={tag.name}
-              className='rounded-full bg-zinc-100 px-3 py-1 text-xs text-zinc-600'
+              className='whitespace-nowrap rounded-full bg-zinc-100 px-3 py-1 text-xs text-zinc-600'
             >
               {tag.name}
             </span>
           ))}
-          {poem.tags.length > 3 && (
-            <span className='rounded-full bg-zinc-100 px-3 py-1 text-xs text-zinc-600'>
-              +{poem.tags.length - 3}
-            </span>
-          )}
         </div>
         <div className='flex items-center gap-2 flex-shrink-0'>
           <MemorizeButton
