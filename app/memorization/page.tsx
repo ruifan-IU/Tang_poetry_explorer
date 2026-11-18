@@ -144,6 +144,7 @@ export default async function MemorizationPage() {
                           isFavorited={favoritedPoemIds.includes(memorization.poem.id)}
                           isMemorizing={true}
                           isAuthenticated={true}
+                          href={`/memorization/practice?poemId=${memorization.poem.id}`}
                         />
                       ))}
                     </div>

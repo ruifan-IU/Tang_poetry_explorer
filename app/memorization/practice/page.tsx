@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { Suspense, useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
 type Poem = {
@@ -26,7 +26,20 @@ type Memorization = {
 type ReviewResponse = 'again' | 'hard' | 'good' | 'easy';
 
 export default function PracticePage() {
+  // useSearchParams() needs a Suspense boundary outside it
+  return (
+    <Suspense fallback={null}>
+      <PracticeSession />
+    </Suspense>
+  );
+}
+
+function PracticeSession() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  // A poem picked on the memorization page (?poemId=) is practiced first,
+  // due or not; after it, the session continues with the poems that are due.
+  const [chosenPoemId, setChosenPoemId] = useState(searchParams.get('poemId'));
   const [memorization, setMemorization] = useState<Memorization | null>(null);
   const [showAnswer, setShowAnswer] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -35,17 +48,36 @@ export default function PracticePage() {
   const [reviewCount, setReviewCount] = useState(0);
 
   useEffect(() => {
-    fetchNextReview();
+    fetchNextReview(chosenPoemId);
   }, []);
 
-  const fetchNextReview = async () => {
+  // Back to the due queue: drop ?poemId= so a reload doesn't reopen the poem.
+  const leaveChosenPoem = () => {
+    setChosenPoemId(null);
+    router.replace('/memorization/practice');
+  };
+
+  const fetchNextReview = async (poemId: string | null) => {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await fetch('/api/memorization/review');
+      const response = await fetch(
+        poemId === null
+          ? '/api/memorization/review'
+          : `/api/memorization/review?poemId=${encodeURIComponent(poemId)}`
+      );
 
       if (response.status === 401) {
-        router.push('/login?redirect=/memorization/practice');
+        const here = poemId === null ? '/memorization/practice' : `/memorization/practice?poemId=${poemId}`;
+        router.push(`/login?redirect=${encodeURIComponent(here)}`);
+        return;
+      }
+
+      // The picked poem isn't in the list (removed, or a stale link):
+      // practice whatever is due instead.
+      if (poemId !== null && (response.status === 404 || response.status === 400)) {
+        leaveChosenPoem();
+        await fetchNextReview(null);
         return;
       }
 
@@ -92,8 +124,9 @@ export default function PracticePage() {
       // Increment review count
       setReviewCount(prev => prev + 1);
 
-      // Fetch next review
-      await fetchNextReview();
+      // Fetch next review; a picked poem is done once rated
+      if (chosenPoemId !== null) leaveChosenPoem();
+      await fetchNextReview(null);
     } catch (err) {
       console.error('Submit error:', err);
       alert('提交失败，请重试');
@@ -119,7 +152,7 @@ export default function PracticePage() {
         <div className="text-center">
           <p className="text-red-600 mb-4">{error}</p>
           <button
-            onClick={fetchNextReview}
+            onClick={() => fetchNextReview(chosenPoemId)}
             className="rounded-lg bg-purple-600 px-6 py-2 text-white hover:bg-purple-700"
           >
             重试

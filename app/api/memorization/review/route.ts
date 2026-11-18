@@ -55,6 +55,12 @@ export async function POST(request: NextRequest) {
     // Convert user response to quality score (0-5)
     const quality = mapUserResponseToQuality(response);
 
+    // Poems picked on the memorization page can be rated before they're due.
+    // TODO(human): decide what an early review does to the schedule. Right
+    // now it counts like an on-time one (the SM-2 update below).
+    const isEarly =
+      memorization.nextReviewAt !== null && memorization.nextReviewAt > new Date();
+
     // Calculate next review parameters using SM-2 algorithm
     const {
       newEaseFactor,
@@ -125,6 +131,10 @@ export async function POST(request: NextRequest) {
 /**
  * GET /api/memorization/review
  * Get the next poem due for review
+ *
+ * GET /api/memorization/review?poemId=123
+ * Get that poem's memorization, due or not (practicing a poem picked from
+ * the memorization page); 404 if it isn't in the user's list.
  */
 export async function GET(request: NextRequest) {
   try {
@@ -137,6 +147,34 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    const include = {
+      poem: {
+        include: {
+          poet: true,
+          dynasty: true,
+        },
+      },
+    };
+
+    const poemIdParam = request.nextUrl.searchParams.get('poemId');
+    if (poemIdParam !== null) {
+      const poemId = Number(poemIdParam);
+      if (!Number.isInteger(poemId) || poemId <= 0) {
+        return NextResponse.json({ error: 'Invalid poem ID' }, { status: 400 });
+      }
+      const chosen = await prisma.userMemorization.findUnique({
+        where: { userId_poemId: { userId: user.userId, poemId } },
+        include,
+      });
+      if (!chosen) {
+        return NextResponse.json(
+          { error: 'Poem not in memorization list' },
+          { status: 404 }
+        );
+      }
+      return NextResponse.json({ nextReview: chosen });
+    }
+
     // Find the next poem due for review (most overdue first)
     const nextReview = await prisma.userMemorization.findFirst({
       where: {
@@ -145,14 +183,7 @@ export async function GET(request: NextRequest) {
           lte: new Date(),
         },
       },
-      include: {
-        poem: {
-          include: {
-            poet: true,
-            dynasty: true,
-          },
-        },
-      },
+      include,
       orderBy: {
         nextReviewAt: 'asc',
       },

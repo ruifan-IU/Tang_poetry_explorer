@@ -23,6 +23,8 @@ type PoemCardProps = {
   isFavorited: boolean;
   isMemorizing?: boolean;
   isAuthenticated: boolean;
+  // Where the card goes when clicked; the poem's own page by default.
+  href?: string;
 };
 
 export function PoemCard({
@@ -30,6 +32,7 @@ export function PoemCard({
   isFavorited,
   isMemorizing = false,
   isAuthenticated,
+  href,
 }: PoemCardProps) {
   const router = useRouter();
 
@@ -45,7 +48,7 @@ export function PoemCard({
 
   return (
     <Link
-      href={`/poems/${poem.id}`}
+      href={href ?? `/poems/${poem.id}`}
       className='block rounded-lg border border-zinc-200 bg-white p-6 transition-shadow hover:shadow-lg'
     >
       {/* Header */}
