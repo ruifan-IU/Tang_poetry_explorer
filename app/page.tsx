@@ -1,5 +1,4 @@
 import { Suspense } from 'react';
-import Image from 'next/image';
 import { PoemCard } from './components/PoemCard';
 import { FilterSidebar } from './components/FilterSidebar';
 import { PoemFeed } from './components/PoemFeed';
@@ -73,19 +72,7 @@ export default async function ExplorePage(props: {
 
   return (
     <div className="relative min-h-screen">
-      {/* Background: fixed to the viewport so it stays put while the feed
-          scrolls, under a parchment wash that keeps the cards readable. */}
-      <div aria-hidden className="fixed inset-0 -z-10">
-        <Image
-          src="/landing.jpg"
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover"
-        />
-        <div className="absolute inset-0 bg-stone-50/80" />
-      </div>
+      {/* The background painting is PageBackground, in the root layout. */}
 
       <div className="container mx-auto px-4 py-8">
         {/* The search bar is in the navbar (NavSearch), so it stays on screen. */}

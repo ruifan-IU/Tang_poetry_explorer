@@ -27,7 +27,7 @@ export default async function PoemDetailPage(props: { params: Params }) {
   const background = poem.annotations.find((a) => a.type === 'BACKGROUND');
 
   return (
-    <div className='min-h-screen bg-zinc-50 py-12'>
+    <div className='min-h-screen py-12'>
       <article className='container mx-auto max-w-3xl px-4'>
         <div className='rounded-lg border border-zinc-200 bg-white p-8'>
           {/* Title and Author */}

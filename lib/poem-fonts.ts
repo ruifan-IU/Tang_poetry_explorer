@@ -3,6 +3,7 @@
 // and mapped to a font stack in app/globals.css.
 export const POEM_FONTS = [
   { id: 'noto', label: '思源宋体' },
+  { id: 'cactus', label: '仙人掌明体' },
   { id: 'wenkai', label: '霞鹜文楷' },
   { id: 'mashanzheng', label: '马善政楷书' },
   { id: 'longcang', label: '龙藏行书' },

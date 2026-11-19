@@ -21,7 +21,7 @@ export default async function FavoritesPage() {
   const showLimitWarning = !user.emailVerified && favoritedPoems.length >= MAX_FAVORITES_UNVERIFIED - 1;
 
   return (
-    <div className="min-h-screen bg-zinc-50">
+    <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-zinc-900">我的收藏</h1>

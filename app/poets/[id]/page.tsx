@@ -14,7 +14,7 @@ export default async function PoetDetailPage(props: { params: Params }) {
   }
 
   return (
-    <div className='min-h-screen bg-zinc-50 py-12'>
+    <div className='min-h-screen py-12'>
       <div className='container mx-auto max-w-4xl px-4'>
         {/* Header Card */}
         <div className='mb-8 rounded-lg border border-zinc-200 bg-white p-8'>

@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
-import { Long_Cang, Ma_Shan_Zheng, Noto_Serif_SC } from "next/font/google";
+import { Cactus_Classical_Serif, Long_Cang, Ma_Shan_Zheng, Noto_Serif_SC } from "next/font/google";
 import { Navbar } from "./components/Navbar";
+import { PageBackground } from "./components/PageBackground";
+import { randomBackground } from "@/lib/backgrounds";
 import { DEFAULT_POEM_FONT, POEM_FONT_COOKIE, isPoemFont } from "@/lib/poem-fonts";
 // LXGW WenKai GB (霞鹜文楷) isn't on Google Fonts; this package ships it
 // split into unicode-range chunks. Regular weight only.
@@ -14,6 +16,12 @@ import "./globals.css";
 // downloads only the chunks for characters on the page, in the font in use.
 const notoSerifSC = Noto_Serif_SC({
   variable: "--font-noto-serif-sc",
+  display: "swap",
+  preload: false,
+});
+const cactusClassicalSerif = Cactus_Classical_Serif({
+  weight: "400",
+  variable: "--font-cactus-classical-serif",
   display: "swap",
   preload: false,
 });
@@ -44,6 +52,9 @@ export default async function RootLayout({
   // flashes the default font first.
   const saved = (await cookies()).get(POEM_FONT_COOKIE)?.value;
   const poemFont = isPoemFont(saved) ? saved : DEFAULT_POEM_FONT;
+  // A new painting on each page load; the layout stays mounted across
+  // in-app navigation, so it's the same one until the next load.
+  const background = randomBackground();
 
   // zh-CN picks Simplified Chinese glyph forms for the Han characters Chinese
   // shares with Japanese and Korean, and tells screen readers and search
@@ -52,11 +63,12 @@ export default async function RootLayout({
     <html
       lang="zh-CN"
       data-poem-font={poemFont}
-      className={[notoSerifSC, maShanZheng, longCang]
+      className={[notoSerifSC, cactusClassicalSerif, maShanZheng, longCang]
         .map((font) => font.variable)
         .join(" ")}
     >
       <body className="antialiased">
+        <PageBackground background={background} />
         <Navbar poemFont={poemFont} />
         {children}
       </body>

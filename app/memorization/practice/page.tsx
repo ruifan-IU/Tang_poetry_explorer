@@ -137,7 +137,7 @@ function PracticeSession() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-zinc-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
           <p className="mt-4 text-zinc-600">加载中...</p>
@@ -148,7 +148,7 @@ function PracticeSession() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-zinc-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600 mb-4">{error}</p>
           <button
@@ -164,7 +164,7 @@ function PracticeSession() {
 
   if (!memorization) {
     return (
-      <div className="min-h-screen bg-zinc-50">
+      <div className="min-h-screen">
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-2xl mx-auto text-center">
             <div className="rounded-lg border border-zinc-200 bg-white p-12">
@@ -212,7 +212,7 @@ function PracticeSession() {
   const config = masteryLevelConfig[memorization.masteryLevel as keyof typeof masteryLevelConfig];
 
   return (
-    <div className="min-h-screen bg-zinc-50">
+    <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-3xl mx-auto">
           {/* Header */}

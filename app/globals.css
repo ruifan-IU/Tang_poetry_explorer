@@ -28,6 +28,12 @@
   --poem-font: var(--font-noto-serif-sc), "LXGW WenKai GB", "Songti SC",
     "Noto Serif CJK SC", "SimSun", serif;
 }
+/* A 明体 like Noto, so it falls back to Noto: it lacks only 273 of the
+   corpus's characters, mostly rare ones Noto lacks too. */
+[data-poem-font="cactus"] {
+  --poem-font: var(--font-cactus-classical-serif), var(--font-noto-serif-sc),
+    "LXGW WenKai GB", serif;
+}
 [data-poem-font="wenkai"] {
   --poem-font: "LXGW WenKai GB", var(--font-noto-serif-sc), "Kaiti SC",
     "KaiTi", serif;

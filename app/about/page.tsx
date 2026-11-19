@@ -11,7 +11,7 @@ export default async function AboutPage() {
   const stats = await getCollectionStats();
 
   return (
-    <div className='min-h-screen bg-zinc-50 py-12'>
+    <div className='min-h-screen py-12'>
       <article className='container mx-auto max-w-3xl px-4'>
         <div className='rounded-lg border border-zinc-200 bg-white p-8 leading-relaxed text-zinc-700'>
           <h1 className='mb-6 text-4xl font-bold text-zinc-900'>关于唐诗博览</h1>

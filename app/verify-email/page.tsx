@@ -51,7 +51,7 @@ export default function VerifyEmailPage() {
   }, [searchParams, router]);
 
   return (
-    <div className="min-h-screen bg-zinc-50 flex items-center justify-center px-4">
+    <div className="min-h-screen flex items-center justify-center px-4">
       <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
         {status === 'loading' && (
           <div className="text-center">
