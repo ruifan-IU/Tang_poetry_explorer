@@ -2,8 +2,21 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 const SALT_ROUNDS = 10;
+
+/**
+ * The key that signs auth cookies. There is deliberately no fallback: a
+ * default key would be public (it's in the source), letting anyone forge a
+ * cookie for any user, and sign-in would keep working so nothing would look
+ * wrong. Read on use rather than at import, so `next build` doesn't need it.
+ */
+function jwtSecret(): string {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET is not set (see .env.example)');
+  }
+  return secret;
+}
 
 export interface JWTPayload {
   userId: number;
@@ -33,7 +46,7 @@ export async function comparePasswords(
  * Create a JWT token for a user
  */
 export function createToken(payload: JWTPayload): string {
-  return jwt.sign(payload, JWT_SECRET, {
+  return jwt.sign(payload, jwtSecret(), {
     expiresIn: '7d', // Token expires in 7 days
   });
 }
@@ -42,8 +55,11 @@ export function createToken(payload: JWTPayload): string {
  * Verify and decode a JWT token
  */
 export function verifyToken(token: string): JWTPayload | null {
+  // Outside the try: a missing secret must fail loudly, not make every
+  // token look invalid (which would quietly sign everyone out).
+  const secret = jwtSecret();
   try {
-    return jwt.verify(token, JWT_SECRET) as JWTPayload;
+    return jwt.verify(token, secret) as JWTPayload;
   } catch (error) {
     return null;
   }

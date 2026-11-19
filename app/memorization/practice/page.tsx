@@ -115,6 +115,15 @@ function PracticeSession() {
         }),
       });
 
+      // Not due (already reviewed in another tab, or a page left open from
+      // before): there's nothing to record, and retrying can't succeed, so
+      // move on rather than showing an error.
+      if (res.status === 409) {
+        if (chosenPoemId !== null) leaveChosenPoem();
+        await fetchNextReview(null);
+        return;
+      }
+
       if (!res.ok) {
         throw new Error('Failed to submit review');
       }
