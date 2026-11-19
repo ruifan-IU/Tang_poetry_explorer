@@ -140,32 +140,44 @@ export async function getPoemById(id: number) {
   });
 }
 
+// Poems whose title, poet's name or text contains the query.
+function searchPoemsWhere(query: string) {
+  return {
+    OR: [
+      { title: { contains: query, mode: 'insensitive' as const } },
+      { poet: { name: { contains: query, mode: 'insensitive' as const } } },
+      { content: { contains: query, mode: 'insensitive' as const } },
+    ],
+  };
+}
+
 /**
- * Search poems by title, poet, or content.
+ * Search poems by title, poet, or content, best known first. `offset`
+ * pages through them for the endless search feed.
  */
-export async function searchPoems(query: string, limit = 20, type?: PoemType) {
+export async function searchPoems(
+  query: string,
+  { limit = FEED_PAGE_SIZE, offset = 0 }: { limit?: number; offset?: number } = {}
+) {
   return prisma.poem.findMany({
-    where: {
-      OR: [
-        { title: { contains: query, mode: 'insensitive' } },
-        { poet: { name: { contains: query, mode: 'insensitive' } } },
-        { content: { contains: query, mode: 'insensitive' } },
-      ],
-      ...(type && { type }),
-    },
+    where: searchPoemsWhere(query),
     include: {
       poet: true,
       tags: true,
       dynasty: true,
     },
-    orderBy: [
-      { fame: 'desc' },
-      {
-        stars: 'desc',
-      },
-    ],
+    // id last: paging needs a total order (see getFilteredPoems).
+    orderBy: [{ fame: 'desc' }, { stars: 'desc' }, { id: 'asc' }],
     take: limit,
+    skip: offset,
   });
+}
+
+/**
+ * How many poems match a search (the total shown above the results).
+ */
+export async function countSearchPoems(query: string) {
+  return prisma.poem.count({ where: searchPoemsWhere(query) });
 }
 
 // ========== Poets ==========

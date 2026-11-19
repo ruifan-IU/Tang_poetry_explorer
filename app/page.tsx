@@ -1,5 +1,4 @@
 import { Suspense } from 'react';
-import { PoemCard } from './components/PoemCard';
 import { FilterSidebar } from './components/FilterSidebar';
 import { PoemFeed } from './components/PoemFeed';
 import {
@@ -10,6 +9,7 @@ import {
   countFilteredPoems,
   getAllTags,
   searchPoems,
+  countSearchPoems,
 } from '@/lib/queries';
 import { getCurrentUser } from '@/lib/auth';
 import { getUserFavoritedPoemIds } from '@/lib/favorites';
@@ -34,7 +34,8 @@ export default async function ExplorePage(props: {
     .map(Number)
     .filter((id) => Number.isInteger(id) && id > 0);
   const tagIds = tagIdList.length > 0 ? tagIdList : undefined;
-  const query = searchParams.q;
+  // Trimmed the same way as in /api/poems/search, so both pages agree.
+  const query = searchParams.q?.trim() || undefined;
 
   // Get current user and their favorites/memorizations
   const user = await getCurrentUser();
@@ -45,26 +46,26 @@ export default async function ExplorePage(props: {
       ])
     : [[], []];
 
-  // Without a search, the page shows an endless feed (PoemFeed): the
-  // selected tags' poems best known first, or with no tags the recommended
+  // The page shows an endless feed (PoemFeed): search results or the
+  // selected tags' poems, best known first, or with neither the recommended
   // poems. Its first page is rendered here, the rest fetched on scroll from
   // `pagesUrl`, which carries what fixes the order.
   const seed = newRecommendationSeed();
   const pagesUrl = query
-    ? null
+    ? `/api/poems/search?q=${encodeURIComponent(query)}`
     : tagIds
     ? `/api/poems/tagged?${tagIds.map((id) => `tagId=${id}`).join('&')}`
     : `/api/poems/recommended?seed=${seed}`;
 
   // Fetch data in parallel
-  const [poems, tags, tagTotal] = await Promise.all([
+  const [poems, tags, total] = await Promise.all([
     query
-      ? searchPoems(query, 30)
+      ? searchPoems(query)
       : tagIds
       ? getFilteredPoems({ tagIds })
       : getRecommendedPoemsPage(seed),
     getAllTags(),
-    tagIds && !query ? countFilteredPoems({ tagIds }) : null,
+    query ? countSearchPoems(query) : tagIds ? countFilteredPoems({ tagIds }) : null,
   ]);
   const selectedTagNames = tags
     .filter((tag) => tagIds?.includes(tag.id))
@@ -96,9 +97,9 @@ export default async function ExplorePage(props: {
             <div className="mb-6">
               <p className="text-sm text-zinc-600">
                 {query
-                  ? `搜索 "${query}" 找到 ${poems.length} 首诗词`
+                  ? `搜索 "${query}" 找到 ${total} 首诗词，按知名度排序`
                   : tagIds
-                  ? `${selectedTagNames.join('、')} · 共 ${tagTotal} 首，按知名度排序`
+                  ? `${selectedTagNames.join('、')} · 共 ${total} 首，按知名度排序`
                   : '为您推荐名篇佳作'}
               </p>
             </div>
@@ -107,9 +108,9 @@ export default async function ExplorePage(props: {
                 <div className="text-center text-zinc-600">加载中...</div>
               }
             >
-              {pagesUrl && poems.length > 0 ? (
-                // key: new tags or a new visit (new seed) start a new list
-                // rather than appending to the old one.
+              {poems.length > 0 ? (
+                // key: a new search, new tags or a new visit (new seed)
+                // start a new list rather than appending to the old one.
                 <PoemFeed
                   key={pagesUrl}
                   initialPoems={poems}
@@ -119,18 +120,6 @@ export default async function ExplorePage(props: {
                   memorizingPoemIds={memorizingPoemIds}
                   isAuthenticated={!!user}
                 />
-              ) : poems.length > 0 ? (
-                <div className="grid gap-6 md:grid-cols-2">
-                  {poems.map((poem) => (
-                    <PoemCard
-                      key={poem.id}
-                      poem={poem}
-                      isFavorited={favoritedPoemIds.includes(poem.id)}
-                      isMemorizing={memorizingPoemIds.includes(poem.id)}
-                      isAuthenticated={!!user}
-                    />
-                  ))}
-                </div>
               ) : (
                 <div className="rounded-lg border border-zinc-200 bg-white p-12 text-center">
                   <p className="text-lg text-zinc-600">
