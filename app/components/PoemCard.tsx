@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FavoriteButton } from './FavoriteButton';
 import { MemorizeButton } from './MemorizeButton';
+import { SaveCount } from './SaveCount';
 
 type PoemCardProps = {
   poem: {
@@ -66,12 +67,7 @@ export function PoemCard({
             <p className='text-sm text-zinc-600'>{poem.poet.name}</p>
           </button>
         </div>
-        <div className='flex items-center gap-1 text-amber-600'>
-          <span className='text-sm'>⭐</span>
-          <span className='text-sm font-medium'>
-            {stars.toLocaleString()}
-          </span>
-        </div>
+        <SaveCount count={stars} />
       </div>
 
       {/* Content Preview */}

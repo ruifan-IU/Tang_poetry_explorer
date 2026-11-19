@@ -4,6 +4,7 @@ import { getPoemById } from '@/lib/queries';
 import { getCurrentUser } from '@/lib/auth';
 import { isPoemFavorited } from '@/lib/favorites';
 import { FavoriteButton } from '@/app/components/FavoriteButton';
+import { SaveCount } from '@/app/components/SaveCount';
 
 type Params = Promise<{ id: string }>;
 
@@ -47,12 +48,7 @@ export default async function PoemDetailPage(props: { params: Params }) {
                 </div>
               </Link>
               <div className='flex items-center gap-3'>
-                <div className='flex items-center gap-2 text-amber-600'>
-                  <span>⭐</span>
-                  <span className='font-medium'>
-                    {poem.stars.toLocaleString()}
-                  </span>
-                </div>
+                <SaveCount count={poem.stars} className='text-base' />
                 <FavoriteButton
                   poemId={poem.id}
                   initialIsFavorited={isFavorited}

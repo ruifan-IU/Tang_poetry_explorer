@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getPoetById } from '@/lib/queries';
 import { PoetIntroduction } from '@/app/components/PoetIntroduction';
+import { SaveCount } from '@/app/components/SaveCount';
 
 type Params = Promise<{ id: string }>;
 
@@ -27,12 +28,7 @@ export default async function PoetDetailPage(props: { params: Params }) {
                     {poet.name}
                   </h1>
                 </div>
-                <div className='flex items-center gap-2 text-amber-600'>
-                  <span>⭐</span>
-                  <span className='text-lg font-medium'>
-                    {poet.stars.toLocaleString()}
-                  </span>
-                </div>
+                <SaveCount count={poet.stars} className='text-lg' />
               </div>
             </div>
           </div>
@@ -70,12 +66,7 @@ export default async function PoetDetailPage(props: { params: Params }) {
                         {poem.content.split('\n').slice(0, 2).join('\n')}
                       </p>
                     </div>
-                    <div className='flex items-center gap-1 text-amber-600'>
-                      <span className='text-sm'>⭐</span>
-                      <span className='text-sm font-medium'>
-                        {poem.stars.toLocaleString()}
-                      </span>
-                    </div>
+                    <SaveCount count={poem.stars} />
                   </div>
                 </Link>
               ))}
