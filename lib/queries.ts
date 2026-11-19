@@ -71,17 +71,26 @@ export async function getRecommendedPoemsPage(
 }
 
 type PoemFilters = {
+  query?: string;
   poetIds?: number[];
   tagIds?: number[];
   dynastyId?: number;
   type?: PoemType;
 };
 
-// Several poets match poems by any of them, and several tags poems with any
-// of them; poets and tags together match poems that satisfy both (李白 +
-// 唐诗三百首 is 李白's poems in 唐诗三百首).
-function filteredPoemsWhere({ poetIds, tagIds, dynastyId, type }: PoemFilters) {
+// A search query matches poems whose title, poet's name or text contains
+// it. Several poets match poems by any of them, and several tags poems with
+// any of them. The query, poets and tags together match poems that satisfy
+// all three (李白 + 唐诗三百首 is 李白's poems in 唐诗三百首).
+function filteredPoemsWhere({ query, poetIds, tagIds, dynastyId, type }: PoemFilters) {
   return {
+    ...(query && {
+      OR: [
+        { title: { contains: query, mode: 'insensitive' as const } },
+        { poet: { name: { contains: query, mode: 'insensitive' as const } } },
+        { content: { contains: query, mode: 'insensitive' as const } },
+      ],
+    }),
     ...(poetIds && poetIds.length > 0 && { poetId: { in: poetIds } }),
     ...(dynastyId && { dynastyId }),
     ...(type && { type }),
@@ -97,8 +106,8 @@ function filteredPoemsWhere({ poetIds, tagIds, dynastyId, type }: PoemFilters) {
 }
 
 /**
- * Get poems filtered by poets, tags, dynasty, and/or type, best known first.
- * `offset` pages through them for the endless tag feed.
+ * Get poems filtered by a search query, poets, tags, dynasty, and/or type,
+ * best known first. `offset` pages through them for the endless feed.
  */
 export async function getFilteredPoems({
   limit = FEED_PAGE_SIZE,
@@ -121,7 +130,7 @@ export async function getFilteredPoems({
 }
 
 /**
- * How many poems match the filters (the total shown above a tag's feed).
+ * How many poems match the filters (the total shown above the feed).
  */
 export async function countFilteredPoems(filters: PoemFilters) {
   return prisma.poem.count({ where: filteredPoemsWhere(filters) });
@@ -140,46 +149,6 @@ export async function getPoemById(id: number) {
       annotations: true,
     },
   });
-}
-
-// Poems whose title, poet's name or text contains the query.
-function searchPoemsWhere(query: string) {
-  return {
-    OR: [
-      { title: { contains: query, mode: 'insensitive' as const } },
-      { poet: { name: { contains: query, mode: 'insensitive' as const } } },
-      { content: { contains: query, mode: 'insensitive' as const } },
-    ],
-  };
-}
-
-/**
- * Search poems by title, poet, or content, best known first. `offset`
- * pages through them for the endless search feed.
- */
-export async function searchPoems(
-  query: string,
-  { limit = FEED_PAGE_SIZE, offset = 0 }: { limit?: number; offset?: number } = {}
-) {
-  return prisma.poem.findMany({
-    where: searchPoemsWhere(query),
-    include: {
-      poet: true,
-      tags: true,
-      dynasty: true,
-    },
-    // id last: paging needs a total order (see getFilteredPoems).
-    orderBy: [{ fame: 'desc' }, { stars: 'desc' }, { id: 'asc' }],
-    take: limit,
-    skip: offset,
-  });
-}
-
-/**
- * How many poems match a search (the total shown above the results).
- */
-export async function countSearchPoems(query: string) {
-  return prisma.poem.count({ where: searchPoemsWhere(query) });
 }
 
 // ========== Poets ==========

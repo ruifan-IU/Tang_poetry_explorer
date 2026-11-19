@@ -10,8 +10,6 @@ import {
   getFilterNames,
   getTopPoets,
   getTopTags,
-  searchPoems,
-  countSearchPoems,
 } from '@/lib/queries';
 import { getCurrentUser } from '@/lib/auth';
 import { getUserFavoritedPoemIds } from '@/lib/favorites';
@@ -45,11 +43,13 @@ export default async function ExplorePage(props: {
   const searchParams = await props.searchParams;
 
   // Parse filters from URL
+  // Trimmed the same way as in /api/poems/filtered, so both agree.
+  const query = searchParams.q?.trim() || undefined;
   const poetIds = parseIds(searchParams.poetId);
   const tagIds = parseIds(searchParams.tagId);
-  const filtered = poetIds !== undefined || tagIds !== undefined;
-  // Trimmed the same way as in /api/poems/search, so both pages agree.
-  const query = searchParams.q?.trim() || undefined;
+  // A search is a filter like the others: it combines with poets and tags.
+  const filters = { query, poetIds, tagIds };
+  const filtered = query !== undefined || poetIds !== undefined || tagIds !== undefined;
 
   // Get current user and their favorites/memorizations
   const user = await getCurrentUser();
@@ -60,38 +60,34 @@ export default async function ExplorePage(props: {
       ])
     : [[], []];
 
-  // The page shows an endless feed (PoemFeed): search results or the
-  // selected tags' poems, best known first, or with neither the recommended
-  // poems. Its first page is rendered here, the rest fetched on scroll from
-  // `pagesUrl`, which carries what fixes the order.
+  // The page shows an endless feed (PoemFeed): the poems matching the
+  // search and the selected poets and tags, best known first, or with none
+  // of those the recommended poems. Its first page is rendered here, the
+  // rest fetched on scroll from `pagesUrl`, which carries what fixes the order.
   const seed = newRecommendationSeed();
-  const pagesUrl = query
-    ? `/api/poems/search?q=${encodeURIComponent(query)}`
-    : filtered
-    ? `/api/poems/filtered?${[
-        ...(poetIds ?? []).map((id) => `poetId=${id}`),
-        ...(tagIds ?? []).map((id) => `tagId=${id}`),
-      ].join('&')}`
+  const filterParams = new URLSearchParams([
+    ...(query ? [['q', query]] : []),
+    ...(poetIds ?? []).map((id) => ['poetId', String(id)]),
+    ...(tagIds ?? []).map((id) => ['tagId', String(id)]),
+  ]);
+  const pagesUrl = filtered
+    ? `/api/poems/filtered?${filterParams}`
     : `/api/poems/recommended?seed=${seed}`;
 
   // Fetch data in parallel
   const [poems, poets, tags, total, { poetNames, tagNames }] = await Promise.all([
-    query
-      ? searchPoems(query)
-      : filtered
-      ? getFilteredPoems({ poetIds, tagIds })
-      : getRecommendedPoemsPage(seed),
+    filtered ? getFilteredPoems(filters) : getRecommendedPoemsPage(seed),
     getTopPoets(SIDEBAR_POETS),
     getTopTags(SIDEBAR_TAGS),
-    query
-      ? countSearchPoems(query)
-      : filtered
-      ? countFilteredPoems({ poetIds, tagIds })
-      : null,
+    filtered ? countFilteredPoems(filters) : null,
     getFilterNames(poetIds, tagIds),
   ]);
-  // e.g. 李白、杜甫 · 唐诗三百首
-  const filterLabel = [poetNames, tagNames]
+  // e.g. 搜索 "明月" · 李白、杜甫 · 唐诗三百首
+  const filterLabel = [
+    query ? [`搜索 "${query}"`] : [],
+    poetNames,
+    tagNames,
+  ]
     .filter((names) => names.length > 0)
     .map((names) => names.join('、'))
     .join(' · ');
@@ -121,9 +117,7 @@ export default async function ExplorePage(props: {
             {/* Results info */}
             <div className="mb-6">
               <p className="text-sm text-zinc-600">
-                {query
-                  ? `搜索 "${query}" 找到 ${total} 首诗词，按知名度排序`
-                  : filtered
+                {filtered
                   ? `${filterLabel} · 共 ${total} 首，按知名度排序`
                   : '为您推荐名篇佳作'}
               </p>

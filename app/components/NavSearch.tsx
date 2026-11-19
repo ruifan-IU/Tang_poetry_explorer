@@ -17,7 +17,8 @@ export function NavSearch() {
     // Its own row on phones, between the brand and the links on wider screens.
     <div className='order-last basis-full md:order-none md:flex md:flex-1 md:basis-auto md:justify-center md:px-8'>
       {/* The navbar isn't remounted between navigations, so key the input
-          on ?q= -- otherwise 清除筛选 would leave the old query in the box. */}
+          on ?q= -- otherwise going back, or clicking the logo, would leave
+          the old query in the box. */}
       <SearchBar key={searchParams.get('q') ?? ''} />
     </div>
   );
