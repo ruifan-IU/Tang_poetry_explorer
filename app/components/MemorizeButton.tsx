@@ -55,7 +55,7 @@ export function MemorizeButton({
           // Handle verification limit error
           if (data.requiresVerification) {
             const shouldVerify = confirm(
-              `您已添加 ${data.currentCount} 首诗词到背诵列表（未验证用户上限：${data.maxCount} 首）\n\n${data.error}\n\n是否前往验证邮箱？`
+              `您已添加 ${data.currentCount} 首诗词到背诵列表（未验证用户上限：${data.maxCount} 首）\n\n${data.error}\n\n是否前往验证邮箱？`,
             );
 
             if (shouldVerify) {
@@ -86,22 +86,22 @@ export function MemorizeButton({
       disabled={isLoading}
       className={`flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
         isMemorizing
-          ? 'bg-purple-50 text-purple-600 hover:bg-purple-100'
+          ? 'bg-mist-200 text-mist-600 hover:bg-mist-300'
           : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'
       } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
       title={isMemorizing ? '移出背诵列表' : '加入背诵列表'}
     >
       <svg
-        className="h-4 w-4"
+        className='h-4 w-4'
         fill={isMemorizing ? 'currentColor' : 'none'}
-        stroke="currentColor"
-        viewBox="0 0 24 24"
+        stroke='currentColor'
+        viewBox='0 0 24 24'
       >
         <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
+          strokeLinecap='round'
+          strokeLinejoin='round'
           strokeWidth={2}
-          d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+          d='M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z'
         />
       </svg>
       {isMemorizing ? '背诵中' : '背诵'}

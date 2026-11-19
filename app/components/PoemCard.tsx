@@ -49,7 +49,7 @@ export function PoemCard({
   return (
     <Link
       href={href ?? `/poems/${poem.id}`}
-      className='block rounded-lg border border-zinc-200 bg-white p-6 transition-shadow hover:shadow-lg'
+      className='block rounded-lg border border-zinc-200 bg-zinc-100 p-6 transition-shadow hover:shadow-lg'
     >
       {/* Header */}
       <div className='mb-4 flex items-start justify-between gap-4'>

@@ -75,13 +75,13 @@ function FilterSection({
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className='rounded-lg border border-zinc-200 bg-white p-4'>
+    <div className='rounded-lg border border-zinc-200 bg-zinc-100 p-4'>
       <button
         onClick={() => setIsOpen((open) => !open)}
         aria-expanded={isOpen}
         className='flex w-full items-center justify-between lg:pointer-events-none'
       >
-        <h3 className='text-lg font-semibold text-zinc-900'>
+        <h3 className='ml-2 text-lg font-semibold text-zinc-900'>
           {title}
           {selected.length > 0 && (
             <span className='ml-2 text-sm font-normal text-zinc-500'>
@@ -104,7 +104,7 @@ function FilterSection({
             aria-pressed={selected.includes(String(option.id))}
             className={`rounded-full px-3 py-1 text-xs transition-colors ${
               selected.includes(String(option.id))
-                ? 'bg-zinc-900 text-white'
+                ? 'bg-zinc-700 text-white'
                 : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200'
             }`}
           >

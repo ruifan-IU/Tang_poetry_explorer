@@ -9,7 +9,8 @@ type PoemFeedProps = {
   initialPoems: Poem[];
   // The API URL for later pages, without the offset: the feed appends
   // &offset=<poems so far>. It carries whatever fixes the order -- the
-  // recommended feed's seed, or the selected tags.
+  // recommended feed's seed, or the search and filters. Read once, when the
+  // feed mounts (see below).
   pagesUrl: string;
   pageSize: number;
   favoritedPoemIds: number[];
@@ -21,19 +22,28 @@ type Status = 'idle' | 'loading' | 'done' | 'error';
 
 /**
  * An endless list of poem cards: the home page's recommended poems, or the
- * poems of the selected tags. The server renders the first page; each time
- * the end of the list comes near the viewport, the next page is fetched
- * from `pagesUrl`, whose fixed order lets the list continue without repeats.
+ * poems matching its search and filters. The server renders the first page;
+ * each time the end of the list comes near the viewport, the next page is
+ * fetched from `pagesUrl`, whose fixed order lets the list continue without
+ * repeats.
+ *
+ * The list and its order are fixed when the feed mounts: a server refresh
+ * re-renders the page with new props (a new recommended seed and first
+ * page), and the poems already on screen must stay put. A new list needs a
+ * new `key`.
  */
 export function PoemFeed({
   initialPoems,
-  pagesUrl,
+  pagesUrl: initialPagesUrl,
   pageSize,
   favoritedPoemIds,
   memorizingPoemIds,
   isAuthenticated,
 }: PoemFeedProps) {
   const [poems, setPoems] = useState(initialPoems);
+  // Later pages must continue the order the first page came from, even if
+  // a refresh passes a URL with a new seed.
+  const [pagesUrl] = useState(initialPagesUrl);
   const [status, setStatus] = useState<Status>(
     initialPoems.length < pageSize ? 'done' : 'idle'
   );

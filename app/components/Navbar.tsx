@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { getCurrentUser } from '@/lib/auth';
 import type { PoemFontId } from '@/lib/poem-fonts';
 import { FontSwitcher } from './FontSwitcher';
+import { HomeLink } from './HomeLink';
 import { NavSearch } from './NavSearch';
 import { UserMenu } from './UserMenu';
 import { VerificationBanner } from './VerificationBanner';
@@ -11,15 +12,15 @@ export async function Navbar({ poemFont }: { poemFont: PoemFontId }) {
   const user = await getCurrentUser();
 
   return (
-    <nav className='sticky top-0 z-50 border-b border-zinc-200 bg-white shadow-sm'>
+    <nav className='sticky top-0 z-50 border-b border-zinc-200 bg-zinc-100 shadow-sm'>
       {user && !user.emailVerified && (
         <VerificationBanner userEmail={user.email} />
       )}
       <div className='container mx-auto flex flex-wrap items-center justify-between gap-y-3 px-4 py-4'>
         {/* Logo/Brand */}
-        <Link href='/' className='flex items-center gap-2'>
+        <HomeLink className='flex items-center gap-2'>
           <span className='text-2xl font-bold text-zinc-900'>唐诗博览</span>
-        </Link>
+        </HomeLink>
 
         {/* useSearchParams() needs a Suspense boundary outside it */}
         <Suspense>

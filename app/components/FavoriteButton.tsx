@@ -55,7 +55,7 @@ export function FavoriteButton({
           // Handle verification limit error
           if (data.requiresVerification) {
             const shouldVerify = confirm(
-              `您已收藏 ${data.currentCount} 首诗词（未验证用户上限：${data.maxCount} 首）\n\n${data.error}\n\n是否前往验证邮箱？`
+              `您已收藏 ${data.currentCount} 首诗词（未验证用户上限：${data.maxCount} 首）\n\n${data.error}\n\n是否前往验证邮箱？`,
             );
 
             if (shouldVerify) {
@@ -86,22 +86,22 @@ export function FavoriteButton({
       disabled={isLoading}
       className={`flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
         isFavorited
-          ? 'bg-red-50 text-red-600 hover:bg-red-100'
+          ? 'bg-mauve-200 text-mauve-600 hover:bg-mauve-300'
           : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'
       } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
       title={isFavorited ? '取消收藏' : '收藏'}
     >
       <svg
-        className="h-4 w-4"
+        className='h-4 w-4'
         fill={isFavorited ? 'currentColor' : 'none'}
-        stroke="currentColor"
-        viewBox="0 0 24 24"
+        stroke='currentColor'
+        viewBox='0 0 24 24'
       >
         <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
+          strokeLinecap='round'
+          strokeLinejoin='round'
           strokeWidth={2}
-          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+          d='M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z'
         />
       </svg>
       {isFavorited ? '已收藏' : '收藏'}

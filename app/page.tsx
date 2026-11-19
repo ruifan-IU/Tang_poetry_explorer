@@ -49,7 +49,8 @@ export default async function ExplorePage(props: {
   const tagIds = parseIds(searchParams.tagId);
   // A search is a filter like the others: it combines with poets and tags.
   const filters = { query, poetIds, tagIds };
-  const filtered = query !== undefined || poetIds !== undefined || tagIds !== undefined;
+  const filtered =
+    query !== undefined || poetIds !== undefined || tagIds !== undefined;
 
   // Get current user and their favorites/memorizations
   const user = await getCurrentUser();
@@ -75,35 +76,32 @@ export default async function ExplorePage(props: {
     : `/api/poems/recommended?seed=${seed}`;
 
   // Fetch data in parallel
-  const [poems, poets, tags, total, { poetNames, tagNames }] = await Promise.all([
-    filtered ? getFilteredPoems(filters) : getRecommendedPoemsPage(seed),
-    getTopPoets(SIDEBAR_POETS),
-    getTopTags(SIDEBAR_TAGS),
-    filtered ? countFilteredPoems(filters) : null,
-    getFilterNames(poetIds, tagIds),
-  ]);
+  const [poems, poets, tags, total, { poetNames, tagNames }] =
+    await Promise.all([
+      filtered ? getFilteredPoems(filters) : getRecommendedPoemsPage(seed),
+      getTopPoets(SIDEBAR_POETS),
+      getTopTags(SIDEBAR_TAGS),
+      filtered ? countFilteredPoems(filters) : null,
+      getFilterNames(poetIds, tagIds),
+    ]);
   // e.g. 搜索 "明月" · 李白、杜甫 · 唐诗三百首
-  const filterLabel = [
-    query ? [`搜索 "${query}"`] : [],
-    poetNames,
-    tagNames,
-  ]
+  const filterLabel = [query ? [`搜索 "${query}"`] : [], poetNames, tagNames]
     .filter((names) => names.length > 0)
     .map((names) => names.join('、'))
     .join(' · ');
 
   return (
-    <div className="relative min-h-screen">
+    <div className='relative min-h-screen'>
       {/* The background painting is PageBackground, in the root layout. */}
 
-      <div className="container mx-auto px-4 py-8">
+      <div className='container mx-auto px-4 py-8'>
         {/* The search bar is in the navbar (NavSearch), so it stays on screen. */}
-        <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
+        <div className='flex flex-col gap-8 lg:flex-row lg:items-start'>
           {/* Filters (poets, tags): a sticky left column that scrolls on its own */}
-          <aside className="lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:w-64 lg:shrink-0 lg:overflow-y-auto">
+          <aside className='lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:w-64 lg:shrink-0 lg:overflow-y-auto'>
             <Suspense
               fallback={
-                <div className="rounded-lg border border-zinc-200 bg-white p-4 text-center text-sm text-zinc-600">
+                <div className='rounded-lg border border-zinc-200 bg-white p-4 text-center text-sm text-zinc-600'>
                   加载筛选器...
                 </div>
               }
@@ -113,10 +111,11 @@ export default async function ExplorePage(props: {
           </aside>
 
           {/* Poems List - Main Content */}
-          <main className="flex-1">
+          <main className='flex-1'>
             {/* Results info */}
-            <div className="mb-6">
-              <p className="text-sm text-zinc-600">
+            {/* An ink-coloured band, so the text reads over any of the paintings. */}
+            <div className='mb-6'>
+              <p className='w-fit rounded-lg bg-zinc-600/80 px-4 py-2 text-base text-stone-50 shadow-sm'>
                 {filtered
                   ? `${filterLabel} · 共 ${total} 首，按知名度排序`
                   : '为您推荐名篇佳作'}
@@ -124,14 +123,17 @@ export default async function ExplorePage(props: {
             </div>
             <Suspense
               fallback={
-                <div className="text-center text-zinc-600">加载中...</div>
+                <div className='text-center text-zinc-600'>加载中...</div>
               }
             >
               {poems.length > 0 ? (
-                // key: a new search, new tags or a new visit (new seed)
-                // start a new list rather than appending to the old one.
+                // key: a new search or new filters start a new list rather
+                // than appending to the old one. Not the recommended feed's
+                // seed: router.refresh() (after 收藏 or 背诵) re-renders this
+                // page with a new seed, and keying on it would swap the whole
+                // list for a reshuffled one under the reader's cursor.
                 <PoemFeed
-                  key={pagesUrl}
+                  key={filtered ? pagesUrl : 'recommended'}
                   initialPoems={poems}
                   pagesUrl={pagesUrl}
                   pageSize={FEED_PAGE_SIZE}
@@ -140,11 +142,11 @@ export default async function ExplorePage(props: {
                   isAuthenticated={!!user}
                 />
               ) : (
-                <div className="rounded-lg border border-zinc-200 bg-white p-12 text-center">
-                  <p className="text-lg text-zinc-600">
+                <div className='rounded-lg border border-zinc-200 bg-white p-12 text-center'>
+                  <p className='text-lg text-zinc-600'>
                     没有找到符合条件的诗词
                   </p>
-                  <p className="mt-2 text-sm text-zinc-500">
+                  <p className='mt-2 text-sm text-zinc-500'>
                     请尝试调整筛选条件
                   </p>
                 </div>
