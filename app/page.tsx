@@ -7,7 +7,9 @@ import {
   newRecommendationSeed,
   getFilteredPoems,
   countFilteredPoems,
-  getAllTags,
+  getFilterNames,
+  getTopPoets,
+  getTopTags,
   searchPoems,
   countSearchPoems,
 } from '@/lib/queries';
@@ -19,9 +21,23 @@ import { getUserMemorizingPoemIds } from '@/lib/memorization';
 // filter by; the Dynasty table and Poem.type stay in the schema for when
 // other collections are added.
 type SearchParams = Promise<{
+  poetId?: string | string[];
   tagId?: string | string[];
   q?: string;
 }>;
+
+// How many of the best-known poets and most-used tags the sidebar offers.
+const SIDEBAR_POETS = 50;
+const SIDEBAR_TAGS = 50;
+
+// Positive integer ids from a repeatable query parameter; undefined if none.
+function parseIds(param: string | string[] | undefined) {
+  const ids = [param ?? []]
+    .flat()
+    .map(Number)
+    .filter((id) => Number.isInteger(id) && id > 0);
+  return ids.length > 0 ? ids : undefined;
+}
 
 export default async function ExplorePage(props: {
   searchParams: SearchParams;
@@ -29,11 +45,9 @@ export default async function ExplorePage(props: {
   const searchParams = await props.searchParams;
 
   // Parse filters from URL
-  const tagIdList = [searchParams.tagId ?? []]
-    .flat()
-    .map(Number)
-    .filter((id) => Number.isInteger(id) && id > 0);
-  const tagIds = tagIdList.length > 0 ? tagIdList : undefined;
+  const poetIds = parseIds(searchParams.poetId);
+  const tagIds = parseIds(searchParams.tagId);
+  const filtered = poetIds !== undefined || tagIds !== undefined;
   // Trimmed the same way as in /api/poems/search, so both pages agree.
   const query = searchParams.q?.trim() || undefined;
 
@@ -53,23 +67,34 @@ export default async function ExplorePage(props: {
   const seed = newRecommendationSeed();
   const pagesUrl = query
     ? `/api/poems/search?q=${encodeURIComponent(query)}`
-    : tagIds
-    ? `/api/poems/tagged?${tagIds.map((id) => `tagId=${id}`).join('&')}`
+    : filtered
+    ? `/api/poems/filtered?${[
+        ...(poetIds ?? []).map((id) => `poetId=${id}`),
+        ...(tagIds ?? []).map((id) => `tagId=${id}`),
+      ].join('&')}`
     : `/api/poems/recommended?seed=${seed}`;
 
   // Fetch data in parallel
-  const [poems, tags, total] = await Promise.all([
+  const [poems, poets, tags, total, { poetNames, tagNames }] = await Promise.all([
     query
       ? searchPoems(query)
-      : tagIds
-      ? getFilteredPoems({ tagIds })
+      : filtered
+      ? getFilteredPoems({ poetIds, tagIds })
       : getRecommendedPoemsPage(seed),
-    getAllTags(),
-    query ? countSearchPoems(query) : tagIds ? countFilteredPoems({ tagIds }) : null,
+    getTopPoets(SIDEBAR_POETS),
+    getTopTags(SIDEBAR_TAGS),
+    query
+      ? countSearchPoems(query)
+      : filtered
+      ? countFilteredPoems({ poetIds, tagIds })
+      : null,
+    getFilterNames(poetIds, tagIds),
   ]);
-  const selectedTagNames = tags
-    .filter((tag) => tagIds?.includes(tag.id))
-    .map((tag) => tag.name);
+  // e.g. 李白、杜甫 · 唐诗三百首
+  const filterLabel = [poetNames, tagNames]
+    .filter((names) => names.length > 0)
+    .map((names) => names.join('、'))
+    .join(' · ');
 
   return (
     <div className="relative min-h-screen">
@@ -78,7 +103,7 @@ export default async function ExplorePage(props: {
       <div className="container mx-auto px-4 py-8">
         {/* The search bar is in the navbar (NavSearch), so it stays on screen. */}
         <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
-          {/* Tag list: a sticky left column that scrolls on its own */}
+          {/* Filters (poets, tags): a sticky left column that scrolls on its own */}
           <aside className="lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:w-64 lg:shrink-0 lg:overflow-y-auto">
             <Suspense
               fallback={
@@ -87,7 +112,7 @@ export default async function ExplorePage(props: {
                 </div>
               }
             >
-              <FilterSidebar tags={tags} />
+              <FilterSidebar poets={poets} tags={tags} />
             </Suspense>
           </aside>
 
@@ -98,8 +123,8 @@ export default async function ExplorePage(props: {
               <p className="text-sm text-zinc-600">
                 {query
                   ? `搜索 "${query}" 找到 ${total} 首诗词，按知名度排序`
-                  : tagIds
-                  ? `${selectedTagNames.join('、')} · 共 ${total} 首，按知名度排序`
+                  : filtered
+                  ? `${filterLabel} · 共 ${total} 首，按知名度排序`
                   : '为您推荐名篇佳作'}
               </p>
             </div>

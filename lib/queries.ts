@@ -71,16 +71,18 @@ export async function getRecommendedPoemsPage(
 }
 
 type PoemFilters = {
-  poetId?: number;
+  poetIds?: number[];
   tagIds?: number[];
   dynastyId?: number;
   type?: PoemType;
 };
 
-// Several tags match poems with any of them, not all.
-function filteredPoemsWhere({ poetId, tagIds, dynastyId, type }: PoemFilters) {
+// Several poets match poems by any of them, and several tags poems with any
+// of them; poets and tags together match poems that satisfy both (李白 +
+// 唐诗三百首 is 李白's poems in 唐诗三百首).
+function filteredPoemsWhere({ poetIds, tagIds, dynastyId, type }: PoemFilters) {
   return {
-    ...(poetId && { poetId }),
+    ...(poetIds && poetIds.length > 0 && { poetId: { in: poetIds } }),
     ...(dynastyId && { dynastyId }),
     ...(type && { type }),
     ...(tagIds &&
@@ -95,7 +97,7 @@ function filteredPoemsWhere({ poetId, tagIds, dynastyId, type }: PoemFilters) {
 }
 
 /**
- * Get poems filtered by poet, tags, dynasty, and/or type, best known first.
+ * Get poems filtered by poets, tags, dynasty, and/or type, best known first.
  * `offset` pages through them for the endless tag feed.
  */
 export async function getFilteredPoems({
@@ -183,6 +185,21 @@ export async function countSearchPoems(query: string) {
 // ========== Poets ==========
 
 /**
+ * The best-known poets, with their poem counts. Useful for filter sidebar.
+ */
+export async function getTopPoets(limit: number) {
+  return prisma.poet.findMany({
+    orderBy: [{ fame: 'desc' }, { id: 'asc' }],
+    include: {
+      _count: {
+        select: { poems: true },
+      },
+    },
+    take: limit,
+  });
+}
+
+/**
  * Get all poets ordered by name.
  * Useful for filter sidebar.
  */
@@ -240,10 +257,10 @@ export async function getPoetsByDynasty(dynastyId: number) {
 // ========== Tags ==========
 
 /**
- * Get all tags, most-used first, with their poem counts.
+ * The most-used tags (all of them without a limit), with their poem counts.
  * Useful for filter sidebar.
  */
-export async function getAllTags() {
+export async function getTopTags(limit?: number) {
   return prisma.tag.findMany({
     // Most-used first: a name sort orders Chinese by code point, which
     // means nothing to a reader.
@@ -253,7 +270,27 @@ export async function getAllTags() {
         select: { poems: true },
       },
     },
+    take: limit,
   });
+}
+
+/**
+ * Names of the selected poets and tags, for the heading above the feed.
+ * Looked up by id rather than taken from the sidebar's lists, which only
+ * hold the top 50 of each -- a link can select any poet or tag.
+ */
+export async function getFilterNames(poetIds: number[] = [], tagIds: number[] = []) {
+  const [poets, tags] = await Promise.all([
+    prisma.poet.findMany({ where: { id: { in: poetIds } }, select: { id: true, name: true } }),
+    prisma.tag.findMany({ where: { id: { in: tagIds } }, select: { id: true, name: true } }),
+  ]);
+  // In the order they were selected, not the database's.
+  const name = (rows: { id: number; name: string }[], id: number) =>
+    rows.find((row) => row.id === id)?.name;
+  return {
+    poetNames: poetIds.map((id) => name(poets, id)).filter((n) => n !== undefined),
+    tagNames: tagIds.map((id) => name(tags, id)).filter((n) => n !== undefined),
+  };
 }
 
 /**
