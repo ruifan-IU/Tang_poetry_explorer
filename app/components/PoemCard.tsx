@@ -27,6 +27,8 @@ type PoemCardProps = {
   isAuthenticated: boolean;
   // Where the card goes when clicked; the poem's own page by default.
   href?: string;
+  // A short label beside the title, e.g. 待复习 on the memorization page.
+  badge?: string;
 };
 
 export function PoemCard({
@@ -35,6 +37,7 @@ export function PoemCard({
   isMemorizing = false,
   isAuthenticated,
   href,
+  badge,
 }: PoemCardProps) {
   const router = useRouter();
   // Updated by the 收藏 button, so the count changes as soon as the reader
@@ -59,7 +62,14 @@ export function PoemCard({
       {/* Header */}
       <div className='mb-4 flex items-start justify-between gap-4'>
         <div className='flex-1'>
-          <h3 className='text-xl font-semibold text-zinc-900'>{poem.title}</h3>
+          <h3 className='text-xl font-semibold text-zinc-900'>
+            {poem.title}
+            {badge && (
+              <span className='ml-2 inline-block rounded-full bg-purple-100 px-2 py-0.5 align-middle text-xs font-medium text-purple-700'>
+                {badge}
+              </span>
+            )}
+          </h3>
           <button
             onClick={handlePoetClick}
             className='mt-2 text-left hover:underline'

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getCurrentUser } from '@/lib/auth';
-import { calculateNextReview, getNextReviewDate, mapUserResponseToQuality } from '@/lib/spaced-repetition';
+import { calculateNextReview, getNextReviewDate, isReviewDue, mapUserResponseToQuality } from '@/lib/spaced-repetition';
 
 /**
  * POST /api/memorization/review
@@ -55,11 +55,15 @@ export async function POST(request: NextRequest) {
     // Convert user response to quality score (0-5)
     const quality = mapUserResponseToQuality(response);
 
-    // Poems picked on the memorization page can be rated before they're due.
-    // TODO(human): decide what an early review does to the schedule. Right
-    // now it counts like an on-time one (the SM-2 update below).
     const isEarly =
       memorization.nextReviewAt !== null && memorization.nextReviewAt > new Date();
+
+    if (isEarly) {
+      return NextResponse.json(
+        { error: 'Poem not due for review yet' },
+        { status: 409 }
+      );
+    }
 
     // Calculate next review parameters using SM-2 algorithm
     const {
@@ -133,8 +137,9 @@ export async function POST(request: NextRequest) {
  * Get the next poem due for review
  *
  * GET /api/memorization/review?poemId=123
- * Get that poem's memorization, due or not (practicing a poem picked from
- * the memorization page); 404 if it isn't in the user's list.
+ * Get that poem's memorization if it's due (practicing a poem picked from
+ * the memorization page); 404 if it isn't in the user's list, 409 if it
+ * isn't due yet -- only due poems can be practiced.
  */
 export async function GET(request: NextRequest) {
   try {
@@ -170,6 +175,12 @@ export async function GET(request: NextRequest) {
         return NextResponse.json(
           { error: 'Poem not in memorization list' },
           { status: 404 }
+        );
+      }
+      if (!isReviewDue(chosen.nextReviewAt)) {
+        return NextResponse.json(
+          { error: 'Poem not due for review yet' },
+          { status: 409 }
         );
       }
       return NextResponse.json({ nextReview: chosen });

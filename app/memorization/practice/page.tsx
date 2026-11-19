@@ -73,9 +73,9 @@ function PracticeSession() {
         return;
       }
 
-      // The picked poem isn't in the list (removed, or a stale link):
-      // practice whatever is due instead.
-      if (poemId !== null && (response.status === 404 || response.status === 400)) {
+      // The picked poem isn't in the list or isn't due (a stale link, or a
+      // tab left open): practice whatever is due instead.
+      if (poemId !== null && [400, 404, 409].includes(response.status)) {
         leaveChosenPoem();
         await fetchNextReview(null);
         return;
