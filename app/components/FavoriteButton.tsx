@@ -7,12 +7,17 @@ type FavoriteButtonProps = {
   poemId: number;
   initialIsFavorited: boolean;
   isAuthenticated: boolean;
+  // Called with the poem's new star count after a favorite is added or
+  // removed, for cards whose count wouldn't otherwise update (the home
+  // page's feed keeps its poems through refreshes).
+  onStarsChange?: (stars: number) => void;
 };
 
 export function FavoriteButton({
   poemId,
   initialIsFavorited,
   isAuthenticated,
+  onStarsChange,
 }: FavoriteButtonProps) {
   const router = useRouter();
   const [isFavorited, setIsFavorited] = useState(initialIsFavorited);
@@ -41,6 +46,7 @@ export function FavoriteButton({
         }
 
         setIsFavorited(false);
+        onStarsChange?.((await response.json()).stars);
       } else {
         // Add to favorites
         const response = await fetch('/api/favorites', {
@@ -69,6 +75,7 @@ export function FavoriteButton({
         }
 
         setIsFavorited(true);
+        onStarsChange?.((await response.json()).stars);
       }
 
       router.refresh();

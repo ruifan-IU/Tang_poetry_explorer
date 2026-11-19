@@ -29,7 +29,7 @@ export default async function PoemDetailPage(props: { params: Params }) {
   return (
     <div className='min-h-screen py-12'>
       <article className='container mx-auto max-w-3xl px-4'>
-        <div className='rounded-lg border border-zinc-200 bg-white p-8'>
+        <div className='rounded-lg border border-zinc-200 bg-zinc-100 p-8'>
           {/* Title and Author */}
           <header className='mb-8 border-b border-zinc-200 pb-6'>
             <h1 className='mb-4 text-4xl font-bold text-zinc-900'>

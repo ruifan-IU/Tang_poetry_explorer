@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create favorite and increment star count in a transaction
-    const [favorite] = await prisma.$transaction([
+    const [favorite, poem] = await prisma.$transaction([
       prisma.userFavorite.create({
         data: {
           userId: user.userId,
@@ -111,10 +111,12 @@ export async function POST(request: NextRequest) {
       prisma.poem.update({
         where: { id: poemId },
         data: { stars: { increment: 1 } },
+        select: { stars: true },
       }),
     ]);
 
-    return NextResponse.json({ favorite });
+    // The new count, so the card can show it without reloading the page.
+    return NextResponse.json({ favorite, stars: poem.stars });
   } catch (error) {
     console.error('Add favorite error:', error);
     return NextResponse.json(
@@ -164,7 +166,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Delete favorite and decrement star count in a transaction
-    await prisma.$transaction([
+    const [, poem] = await prisma.$transaction([
       prisma.userFavorite.delete({
         where: {
           userId_poemId: {
@@ -176,10 +178,11 @@ export async function DELETE(request: NextRequest) {
       prisma.poem.update({
         where: { id: poemId },
         data: { stars: { decrement: 1 } },
+        select: { stars: true },
       }),
     ]);
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, stars: poem.stars });
   } catch (error) {
     console.error('Remove favorite error:', error);
     return NextResponse.json(

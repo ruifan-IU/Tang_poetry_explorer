@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FavoriteButton } from './FavoriteButton';
@@ -35,6 +36,9 @@ export function PoemCard({
   href,
 }: PoemCardProps) {
   const router = useRouter();
+  // Updated by the 收藏 button, so the count changes as soon as the reader
+  // favorites the poem.
+  const [stars, setStars] = useState(poem.stars);
 
   // Truncate content to first 4 lines for preview
   const contentPreview = poem.content.split('\n').slice(0, 2).join('\n');
@@ -65,7 +69,7 @@ export function PoemCard({
         <div className='flex items-center gap-1 text-amber-600'>
           <span className='text-sm'>⭐</span>
           <span className='text-sm font-medium'>
-            {poem.stars.toLocaleString()}
+            {stars.toLocaleString()}
           </span>
         </div>
       </div>
@@ -102,6 +106,7 @@ export function PoemCard({
             poemId={poem.id}
             initialIsFavorited={isFavorited}
             isAuthenticated={isAuthenticated}
+            onStarsChange={setStars}
           />
         </div>
       </div>
