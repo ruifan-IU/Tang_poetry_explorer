@@ -1,25 +1,19 @@
 import { redirect } from 'next/navigation';
 import { PoemCard } from '../components/PoemCard';
 import { getCurrentUser } from '@/lib/auth';
+import { getMessages } from '@/lib/locale-server';
 import { getUserMemorizations, getMemorizationStats } from '@/lib/memorization';
 import { getUserFavoritedPoemIds } from '@/lib/favorites';
 import { isReviewDue } from '@/lib/spaced-repetition';
 import Link from 'next/link';
 
+// The levels' names are in lib/messages.ts (`mastery`).
 const masteryLevelConfig = {
-  NEW: { label: '新增', color: 'bg-white text-mist-700', icon: '📝' },
-  LEARNING: {
-    label: '学习中',
-    color: 'bg-mist-100 text-mist-700',
-    icon: '📚',
-  },
-  YOUNG: { label: '熟悉', color: 'bg-mist-200 text-mist-700', icon: '🌱' },
-  MATURE: { label: '掌握', color: 'bg-mist-300 text-mist-700', icon: '🎯' },
-  MASTERED: {
-    label: '精通',
-    color: 'bg-mist-400 text-mist-700',
-    icon: '🏆',
-  },
+  NEW: { color: 'bg-white text-mist-700', icon: '📝' },
+  LEARNING: { color: 'bg-mist-100 text-mist-700', icon: '📚' },
+  YOUNG: { color: 'bg-mist-200 text-mist-700', icon: '🌱' },
+  MATURE: { color: 'bg-mist-300 text-mist-700', icon: '🎯' },
+  MASTERED: { color: 'bg-mist-400 text-mist-700', icon: '🏆' },
 };
 type MasteryLevel = keyof typeof masteryLevelConfig;
 
@@ -40,6 +34,7 @@ export default async function MemorizationPage(props: {
   // none the poems due for review. Chosen by clicking a card on the left;
   // kept in the URL so back, reload and links keep the choice.
   const { level } = await props.searchParams;
+  const t = await getMessages();
   const selectedLevel = isMasteryLevel(level) ? level : null;
 
   const [memorizations, favoritedPoemIds, stats] = await Promise.all([
@@ -77,7 +72,7 @@ export default async function MemorizationPage(props: {
             ? `/memorization/practice?poemId=${memorization.poem.id}`
             : undefined
         }
-        badge={isDue ? '待复习' : undefined}
+        badge={isDue ? t.memorization.due : undefined}
       />
     );
   };
@@ -90,12 +85,14 @@ export default async function MemorizationPage(props: {
           {/* Baseline-aligned, so the count sits on the title's text line;
               wraps below it on screens too narrow for both. */}
           <div className='flex flex-wrap items-baseline gap-x-4 gap-y-1'>
-            <h1 className='text-3xl font-bold text-zinc-900'>我的背诵</h1>
+            <h1 className='text-3xl font-bold text-zinc-900'>
+              {t.memorization.title}
+            </h1>
             <p className='text-zinc-600'>
-              共 {memorizations.length} 首诗词
+              {t.memorization.count(memorizations.length)}
               {!user.emailVerified && (
                 <span className='ml-2 text-sm text-amber-600'>
-                  （未验证用户上限：{MAX_MEMORIZATIONS_UNVERIFIED} 首）
+                  {t.common.unverifiedLimit(MAX_MEMORIZATIONS_UNVERIFIED)}
                 </span>
               )}
             </p>
@@ -120,12 +117,12 @@ export default async function MemorizationPage(props: {
                 </svg>
                 <div className='flex-1'>
                   <p className='text-sm font-medium text-amber-900'>
-                    即将达到背诵上限
+                    {t.memorization.limitTitle}
                   </p>
                   <p className='mt-1 text-sm text-amber-700'>
-                    您还可以添加{' '}
-                    {MAX_MEMORIZATIONS_UNVERIFIED - memorizations.length}{' '}
-                    首诗词到背诵列表。 验证邮箱即可解锁无限背诵！
+                    {t.memorization.limitBody(
+                      MAX_MEMORIZATIONS_UNVERIFIED - memorizations.length,
+                    )}
                   </p>
                 </div>
               </div>
@@ -140,12 +137,12 @@ export default async function MemorizationPage(props: {
                 the list on smaller screens. */}
             <aside className='lg:sticky lg:top-24 lg:w-60 lg:shrink-0'>
               <h2 className='mb-4 text-xl font-semibold text-zinc-900'>
-                掌握程度
+                {t.memorization.levels}
               </h2>
               <nav className='grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-1'>
                 <ListCard
                   href='/memorization'
-                  label='待复习'
+                  label={t.memorization.due}
                   count={dueMemorizations.length}
                   isSelected={selectedLevel === null}
                   className='bg-purple-100 text-purple-800'
@@ -154,7 +151,7 @@ export default async function MemorizationPage(props: {
                   <ListCard
                     key={key}
                     href={`/memorization?level=${key}`}
-                    label={config.label}
+                    label={t.mastery[key as MasteryLevel]}
                     count={stats.byMasteryLevel[key] || 0}
                     isSelected={key === selectedLevel}
                     className={config.color}
@@ -170,10 +167,10 @@ export default async function MemorizationPage(props: {
                   {selectedLevel ? (
                     <>
                       <span>{masteryLevelConfig[selectedLevel].icon}</span>
-                      <span>{masteryLevelConfig[selectedLevel].label}</span>
+                      <span>{t.mastery[selectedLevel]}</span>
                     </>
                   ) : (
-                    <span>待复习</span>
+                    <span>{t.memorization.due}</span>
                   )}
                   <span className='text-base font-normal text-zinc-500'>
                     ({shownMemorizations.length})
@@ -187,8 +184,8 @@ export default async function MemorizationPage(props: {
               ) : (
                 <p className='rounded-lg border border-zinc-200 bg-white/80 p-6 text-center text-zinc-600'>
                   {selectedLevel
-                    ? '这一等级还没有诗词'
-                    : '今天没有需要复习的诗词。到期的诗词会出现在这里。'}
+                    ? t.memorization.emptyLevel
+                    : t.memorization.noneDue}
                 </p>
               )}
             </section>
@@ -196,16 +193,16 @@ export default async function MemorizationPage(props: {
         ) : (
           <div className='rounded-lg border border-zinc-200 bg-white p-12 text-center'>
             <p className='text-lg text-zinc-600'>
-              您还没有添加任何诗词到背诵列表
+              {t.memorization.empty}
             </p>
             <p className='mt-2 text-sm text-zinc-500'>
-              去探索页面发现想要背诵的诗词吧
+              {t.memorization.emptyHint}
             </p>
             <Link
               href='/'
               className='mt-4 inline-block rounded-lg bg-zinc-900 px-6 py-2 text-white hover:bg-zinc-800'
             >
-              去探索
+              {t.common.explore}
             </Link>
           </div>
         )}

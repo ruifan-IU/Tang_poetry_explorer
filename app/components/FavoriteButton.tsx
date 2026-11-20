@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { BookmarkIcon } from './SaveCount';
+import { useMessages } from './LocaleProvider';
 
 type FavoriteButtonProps = {
   poemId: number;
@@ -23,6 +24,7 @@ export function FavoriteButton({
   const router = useRouter();
   const [isFavorited, setIsFavorited] = useState(initialIsFavorited);
   const [isLoading, setIsLoading] = useState(false);
+  const t = useMessages();
 
   const handleToggleFavorite = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -62,7 +64,7 @@ export function FavoriteButton({
           // Handle verification limit error
           if (data.requiresVerification) {
             const shouldVerify = confirm(
-              `您已收藏 ${data.currentCount} 首诗词（未验证用户上限：${data.maxCount} 首）\n\n${data.error}\n\n是否前往验证邮箱？`,
+              t.favorite.limitReached(data.currentCount, data.maxCount),
             );
 
             if (shouldVerify) {
@@ -82,7 +84,7 @@ export function FavoriteButton({
       router.refresh();
     } catch (error) {
       console.error('Toggle favorite error:', error);
-      alert('操作失败，请重试');
+      alert(t.common.actionFailed);
     } finally {
       setIsLoading(false);
     }
@@ -97,10 +99,10 @@ export function FavoriteButton({
           ? 'bg-mauve-200 text-mauve-600 hover:bg-mauve-300'
           : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'
       } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-      title={isFavorited ? '取消收藏' : '收藏'}
+      title={isFavorited ? t.favorite.remove : t.favorite.add}
     >
       <BookmarkIcon filled={isFavorited} />
-      {isFavorited ? '已收藏' : '收藏'}
+      {isFavorited ? t.favorite.saved : t.favorite.add}
     </button>
   );
 }

@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { JWTPayload } from '@/lib/auth';
+import { useMessages } from './LocaleProvider';
 
 interface UserMenuProps {
   user: JWTPayload;
@@ -12,6 +13,7 @@ export function UserMenu({ user }: UserMenuProps) {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const t = useMessages();
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -85,13 +87,13 @@ export function UserMenu({ user }: UserMenuProps) {
             }}
             className='w-full px-3 py-2 text-left text-sm text-zinc-700 transition-colors hover:bg-zinc-50'
           >
-            我的收藏
+            {t.nav.myFavorites}
           </button>
           <button
             onClick={handleLogout}
             className='w-full px-3 py-2 text-left text-sm text-zinc-700 transition-colors hover:bg-zinc-50'
           >
-            退出登录
+            {t.nav.logout}
           </button>
         </div>
       )}

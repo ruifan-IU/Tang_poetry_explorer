@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { THEMES, THEME_COOKIE, type ThemeId } from '@/lib/theme';
 import { NavMenu, NavMenuOption } from './NavMenu';
+import { useMessages } from './LocaleProvider';
 
 // Outside the component, like applyPoemFont: only ever runs on a click.
 function applyTheme(id: ThemeId) {
@@ -19,11 +20,12 @@ function applyTheme(id: ThemeId) {
  */
 export function ThemeSwitcher({ initialTheme }: { initialTheme: ThemeId }) {
   const [theme, setTheme] = useState(initialTheme);
+  const t = useMessages();
 
   return (
-    <NavMenu label='外观'>
+    <NavMenu label={t.nav.theme}>
       {(close) =>
-        THEMES.map(({ id, label }) => (
+        THEMES.map((id) => (
           <NavMenuOption
             key={id}
             selected={theme === id}
@@ -33,7 +35,7 @@ export function ThemeSwitcher({ initialTheme }: { initialTheme: ThemeId }) {
               close();
             }}
           >
-            {label}
+            {t.themes[id]}
           </NavMenuOption>
         ))
       }

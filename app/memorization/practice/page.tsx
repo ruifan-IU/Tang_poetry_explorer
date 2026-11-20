@@ -3,6 +3,7 @@
 import { Suspense, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { useMessages } from '@/app/components/LocaleProvider';
 
 type Poem = {
   id: number;
@@ -37,6 +38,7 @@ export default function PracticePage() {
 function PracticeSession() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const t = useMessages();
   // A poem picked on the memorization page (?poemId=) is practiced first,
   // due or not; after it, the session continues with the poems that are due.
   const [chosenPoemId, setChosenPoemId] = useState(searchParams.get('poemId'));
@@ -44,7 +46,7 @@ function PracticeSession() {
   const [showAnswer, setShowAnswer] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(false);
   const [reviewCount, setReviewCount] = useState(0);
 
   useEffect(() => {
@@ -60,7 +62,7 @@ function PracticeSession() {
   const fetchNextReview = async (poemId: string | null) => {
     try {
       setIsLoading(true);
-      setError(null);
+      setError(false);
       const response = await fetch(
         poemId === null
           ? '/api/memorization/review'
@@ -95,7 +97,7 @@ function PracticeSession() {
       }
     } catch (err) {
       console.error('Fetch error:', err);
-      setError('加载失败，请重试');
+      setError(true);
     } finally {
       setIsLoading(false);
     }
@@ -138,7 +140,7 @@ function PracticeSession() {
       await fetchNextReview(null);
     } catch (err) {
       console.error('Submit error:', err);
-      alert('提交失败，请重试');
+      alert(t.practice.submitFailed);
     } finally {
       setIsSubmitting(false);
     }
@@ -149,7 +151,7 @@ function PracticeSession() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
-          <p className="mt-4 text-zinc-600">加载中...</p>
+          <p className="mt-4 text-zinc-600">{t.common.loading}</p>
         </div>
       </div>
     );
@@ -159,12 +161,12 @@ function PracticeSession() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-600 mb-4">{error}</p>
+          <p className="text-red-600 mb-4">{t.practice.loadFailed}</p>
           <button
             onClick={() => fetchNextReview(chosenPoemId)}
             className="rounded-lg bg-purple-600 px-6 py-2 text-white hover:bg-purple-700"
           >
-            重试
+            {t.common.retry}
           </button>
         </div>
       </div>
@@ -179,14 +181,14 @@ function PracticeSession() {
             <div className="rounded-lg border border-zinc-200 bg-white p-12">
               <div className="text-6xl mb-4">🎉</div>
               <h1 className="text-2xl font-bold text-zinc-900 mb-2">
-                太棒了！
+                {t.practice.doneTitle}
               </h1>
               <p className="text-zinc-600 mb-2">
-                您已完成所有今日复习
+                {t.practice.doneBody}
               </p>
               {reviewCount > 0 && (
                 <p className="text-sm text-zinc-500 mb-6">
-                  本次共复习 {reviewCount} 首诗词
+                  {t.practice.reviewedTotal(reviewCount)}
                 </p>
               )}
               <div className="flex gap-4 justify-center">
@@ -194,13 +196,13 @@ function PracticeSession() {
                   href="/memorization"
                   className="rounded-lg bg-zinc-900 px-6 py-2 text-white hover:bg-zinc-800"
                 >
-                  返回背诵列表
+                  {t.practice.backToList}
                 </Link>
                 <Link
                   href="/"
                   className="rounded-lg border border-zinc-300 px-6 py-2 text-zinc-700 hover:bg-zinc-50"
                 >
-                  继续探索
+                  {t.practice.keepExploring}
                 </Link>
               </div>
             </div>
@@ -210,15 +212,14 @@ function PracticeSession() {
     );
   }
 
-  const masteryLevelConfig = {
-    NEW: { label: '新增', color: 'bg-zinc-100 text-zinc-700' },
-    LEARNING: { label: '学习中', color: 'bg-blue-100 text-blue-700' },
-    YOUNG: { label: '熟悉', color: 'bg-green-100 text-green-700' },
-    MATURE: { label: '掌握', color: 'bg-purple-100 text-purple-700' },
-    MASTERED: { label: '精通', color: 'bg-amber-100 text-amber-700' },
+  const masteryLevelColors = {
+    NEW: 'bg-zinc-100 text-zinc-700',
+    LEARNING: 'bg-blue-100 text-blue-700',
+    YOUNG: 'bg-green-100 text-green-700',
+    MATURE: 'bg-purple-100 text-purple-700',
+    MASTERED: 'bg-amber-100 text-amber-700',
   };
-
-  const config = masteryLevelConfig[memorization.masteryLevel as keyof typeof masteryLevelConfig];
+  const level = memorization.masteryLevel as keyof typeof masteryLevelColors;
 
   return (
     <div className="min-h-screen">
@@ -233,16 +234,16 @@ function PracticeSession() {
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
-              返回
+              {t.practice.back}
             </Link>
             <div className="flex items-center gap-4">
               {reviewCount > 0 && (
                 <span className="text-sm text-zinc-600">
-                  已复习 {reviewCount} 首
+                  {t.practice.reviewedSoFar(reviewCount)}
                 </span>
               )}
-              <span className={`px-3 py-1 rounded-full text-sm font-medium ${config.color}`}>
-                {config.label}
+              <span className={`px-3 py-1 rounded-full text-sm font-medium ${masteryLevelColors[level]}`}>
+                {t.mastery[level]}
               </span>
             </div>
           </div>
@@ -251,10 +252,10 @@ function PracticeSession() {
           <div className="rounded-lg border border-zinc-200 bg-white p-8 shadow-lg">
             {/* Question */}
             <div className="mb-8">
-              <h2 className="text-2xl font-bold text-zinc-900 mb-2">
+              <h2 lang="zh-CN" className="text-2xl font-bold text-zinc-900 mb-2">
                 {memorization.poem.title}
               </h2>
-              <p className="text-zinc-600">
+              <p lang="zh-CN" className="text-zinc-600">
                 {memorization.poem.poet.name}
               </p>
             </div>
@@ -264,33 +265,33 @@ function PracticeSession() {
               {!showAnswer ? (
                 <div className="text-center py-12">
                   <p className="text-zinc-500 mb-6">
-                    请尝试回忆这首诗词的内容
+                    {t.practice.recallPrompt}
                   </p>
                   <button
                     onClick={() => setShowAnswer(true)}
                     className="rounded-lg bg-purple-600 px-8 py-3 text-white font-medium hover:bg-purple-700"
                   >
-                    显示答案
+                    {t.practice.showAnswer}
                   </button>
                 </div>
               ) : (
                 <div>
-                  <div className="mb-8 whitespace-pre-line font-serif text-2xl text-zinc-800 leading-loose">
+                  <div lang="zh-CN" className="mb-8 whitespace-pre-line font-serif text-2xl text-zinc-800 leading-loose">
                     {memorization.poem.content}
                   </div>
 
                   {/* Statistics */}
                   <div className="mb-8 grid grid-cols-3 gap-4 p-4 rounded-lg bg-zinc-50">
                     <div className="text-center">
-                      <p className="text-sm text-zinc-600">复习次数</p>
+                      <p className="text-sm text-zinc-600">{t.practice.totalReviews}</p>
                       <p className="text-xl font-bold text-zinc-900">{memorization.totalReviews}</p>
                     </div>
                     <div className="text-center">
-                      <p className="text-sm text-zinc-600">正确次数</p>
+                      <p className="text-sm text-zinc-600">{t.practice.correctReviews}</p>
                       <p className="text-xl font-bold text-zinc-900">{memorization.correctReviews}</p>
                     </div>
                     <div className="text-center">
-                      <p className="text-sm text-zinc-600">正确率</p>
+                      <p className="text-sm text-zinc-600">{t.practice.accuracy}</p>
                       <p className="text-xl font-bold text-zinc-900">
                         {memorization.totalReviews > 0
                           ? Math.round((memorization.correctReviews / memorization.totalReviews) * 100)
@@ -302,7 +303,7 @@ function PracticeSession() {
                   {/* Review Buttons */}
                   <div>
                     <p className="text-sm text-zinc-600 mb-3 text-center">
-                      您的掌握程度如何？
+                      {t.practice.howWell}
                     </p>
                     <div className="grid grid-cols-4 gap-3">
                       <button
@@ -310,32 +311,32 @@ function PracticeSession() {
                         disabled={isSubmitting}
                         className="rounded-lg bg-red-50 px-4 py-3 text-red-700 font-medium hover:bg-red-100 disabled:opacity-50"
                       >
-                        <div className="text-sm">再来一次</div>
-                        <div className="text-xs text-red-600 mt-1">&lt;1天</div>
+                        <div className="text-sm">{t.practice.grades.again.label}</div>
+                        <div className="text-xs text-red-600 mt-1">{t.practice.grades.again.hint}</div>
                       </button>
                       <button
                         onClick={() => handleSubmitReview('hard')}
                         disabled={isSubmitting}
                         className="rounded-lg bg-amber-50 px-4 py-3 text-amber-700 font-medium hover:bg-amber-100 disabled:opacity-50"
                       >
-                        <div className="text-sm">困难</div>
-                        <div className="text-xs text-amber-600 mt-1">较短</div>
+                        <div className="text-sm">{t.practice.grades.hard.label}</div>
+                        <div className="text-xs text-amber-600 mt-1">{t.practice.grades.hard.hint}</div>
                       </button>
                       <button
                         onClick={() => handleSubmitReview('good')}
                         disabled={isSubmitting}
                         className="rounded-lg bg-green-50 px-4 py-3 text-green-700 font-medium hover:bg-green-100 disabled:opacity-50"
                       >
-                        <div className="text-sm">良好</div>
-                        <div className="text-xs text-green-600 mt-1">适中</div>
+                        <div className="text-sm">{t.practice.grades.good.label}</div>
+                        <div className="text-xs text-green-600 mt-1">{t.practice.grades.good.hint}</div>
                       </button>
                       <button
                         onClick={() => handleSubmitReview('easy')}
                         disabled={isSubmitting}
                         className="rounded-lg bg-blue-50 px-4 py-3 text-blue-700 font-medium hover:bg-blue-100 disabled:opacity-50"
                       >
-                        <div className="text-sm">简单</div>
-                        <div className="text-xs text-blue-600 mt-1">较长</div>
+                        <div className="text-sm">{t.practice.grades.easy.label}</div>
+                        <div className="text-xs text-blue-600 mt-1">{t.practice.grades.easy.hint}</div>
                       </button>
                     </div>
                   </div>

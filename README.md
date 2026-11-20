@@ -29,6 +29,8 @@ classic anthologies and reader votes. See [Data](#data).
 - **Reading settings:** five poem typefaces (思源宋体, 仙人掌明体, 霞鹜文楷 and
   two calligraphy fonts), and light, dark or system appearance. Both are applied
   on the server, so pages never flash the wrong font or colors.
+- **English or Chinese interface:** one click in the navbar, defaulting to the
+  browser's language. The poems stay in Chinese.
 - **Accounts:** email and password sign-up with email verification. Unverified
   readers can save up to 5 favorites and memorize up to 3 poems.
 

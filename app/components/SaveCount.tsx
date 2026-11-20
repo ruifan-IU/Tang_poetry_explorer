@@ -1,3 +1,7 @@
+'use client';
+
+import { useMessages } from './LocaleProvider';
+
 // A poem's `stars` (or a poet's, summed over their poems) is the number of
 // readers who have saved it with 收藏, so it's shown with the same bookmark
 // as the 收藏 button.
@@ -38,7 +42,7 @@ export function SaveCount({
   count: number;
   className?: string;
 }) {
-  const label = `${count.toLocaleString()} 人收藏`;
+  const label = useMessages().favorite.savedBy(count);
   return (
     <span
       title={label}
@@ -46,7 +50,7 @@ export function SaveCount({
       className={`flex items-center gap-1 font-medium text-mauve-600 ${className}`}
     >
       <BookmarkIcon filled className='h-[1em] w-[1em]' />
-      {count.toLocaleString()}
+      {count.toLocaleString('en-US')}
     </span>
   );
 }

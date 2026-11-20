@@ -12,6 +12,7 @@ import {
   getTopTags,
 } from '@/lib/queries';
 import { getCurrentUser } from '@/lib/auth';
+import { getMessages } from '@/lib/locale-server';
 import { getUserFavoritedPoemIds } from '@/lib/favorites';
 import { getUserMemorizingPoemIds } from '@/lib/memorization';
 
@@ -41,6 +42,7 @@ export default async function ExplorePage(props: {
   searchParams: SearchParams;
 }) {
   const searchParams = await props.searchParams;
+  const t = await getMessages();
 
   // Parse filters from URL
   // Trimmed the same way as in /api/poems/filtered, so both agree.
@@ -85,9 +87,9 @@ export default async function ExplorePage(props: {
       getFilterNames(poetIds, tagIds),
     ]);
   // e.g. 搜索 "明月" · 李白、杜甫 · 唐诗三百首
-  const filterLabel = [query ? [`搜索 "${query}"`] : [], poetNames, tagNames]
+  const filterLabel = [query ? [t.home.searchLabel(query)] : [], poetNames, tagNames]
     .filter((names) => names.length > 0)
-    .map((names) => names.join('、'))
+    .map((names) => names.join(t.home.nameSeparator))
     .join(' · ');
 
   return (
@@ -102,7 +104,7 @@ export default async function ExplorePage(props: {
             <Suspense
               fallback={
                 <div className='rounded-lg border border-zinc-200 bg-white p-4 text-center text-sm text-zinc-600'>
-                  加载筛选器...
+                  {t.home.loadingFilters}
                 </div>
               }
             >
@@ -117,13 +119,13 @@ export default async function ExplorePage(props: {
             <div className='mb-6'>
               <p className='w-fit rounded-lg bg-zinc-600/80 px-4 py-2 text-base text-stone-50 shadow-sm'>
                 {filtered
-                  ? `${filterLabel} · 共 ${total} 首，按知名度排序`
-                  : '为您推荐名篇佳作'}
+                  ? t.home.results(filterLabel, total!)
+                  : t.home.recommended}
               </p>
             </div>
             <Suspense
               fallback={
-                <div className='text-center text-zinc-600'>加载中...</div>
+                <div className='text-center text-zinc-600'>{t.common.loading}</div>
               }
             >
               {poems.length > 0 ? (
@@ -144,10 +146,10 @@ export default async function ExplorePage(props: {
               ) : (
                 <div className='rounded-lg border border-zinc-200 bg-white p-12 text-center'>
                   <p className='text-lg text-zinc-600'>
-                    没有找到符合条件的诗词
+                    {t.home.noResults}
                   </p>
                   <p className='mt-2 text-sm text-zinc-500'>
-                    请尝试调整筛选条件
+                    {t.home.noResultsHint}
                   </p>
                 </div>
               )}

@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useTransition } from 'react';
+import { useMessages } from './LocaleProvider';
 
 type FilterOption = { id: number; name: string; _count: { poems: number } };
 
@@ -19,6 +20,7 @@ export function FilterSidebar({ poets, tags }: FilterSidebarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
+  const t = useMessages();
 
   const toggle = (param: 'poetId' | 'tagId', id: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -38,13 +40,13 @@ export function FilterSidebar({ poets, tags }: FilterSidebarProps) {
   return (
     <div className='space-y-4'>
       <FilterSection
-        title='诗人'
+        title={t.home.poets}
         options={poets}
         selected={searchParams.getAll('poetId')}
         onToggle={(id) => toggle('poetId', id)}
       />
       <FilterSection
-        title='标签'
+        title={t.home.tags}
         options={tags}
         selected={searchParams.getAll('tagId')}
         onToggle={(id) => toggle('tagId', id)}
@@ -52,7 +54,7 @@ export function FilterSidebar({ poets, tags }: FilterSidebarProps) {
 
       {isPending && (
         <div className='rounded-lg border border-zinc-200 bg-zinc-50 p-3 text-center text-sm text-zinc-600'>
-          加载中...
+          {t.common.loading}
         </div>
       )}
     </div>
@@ -73,6 +75,7 @@ function FilterSection({
   // Phones stack the filters above the feed, so there each section starts
   // folded; from lg up they sit in their own column and are always shown.
   const [isOpen, setIsOpen] = useState(false);
+  const t = useMessages();
 
   return (
     <div className='rounded-lg border border-zinc-200 bg-zinc-100 p-4'>
@@ -85,16 +88,17 @@ function FilterSection({
           {title}
           {selected.length > 0 && (
             <span className='ml-2 text-sm font-normal text-zinc-500'>
-              已选 {selected.length}
+              {t.home.selected(selected.length)}
             </span>
           )}
         </h3>
         <span className='text-sm text-zinc-500 lg:hidden'>
-          {isOpen ? '收起 ▲' : '展开 ▼'}
+          {isOpen ? t.home.collapse : t.home.expand}
         </span>
       </button>
 
       <div
+        lang='zh-CN'
         className={`mt-3 flex-wrap gap-2 ${isOpen ? 'flex' : 'hidden'} lg:flex`}
       >
         {options.map((option) => (

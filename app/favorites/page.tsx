@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { PoemCard } from '../components/PoemCard';
 import { getCurrentUser } from '@/lib/auth';
+import { getMessages } from '@/lib/locale-server';
 import { getUserFavoritedPoems, getUserFavoritedPoemIds } from '@/lib/favorites';
 
 export default async function FavoritesPage() {
@@ -12,6 +13,7 @@ export default async function FavoritesPage() {
     redirect('/login?redirect=/favorites');
   }
 
+  const t = await getMessages();
   const [favoritedPoems, favoritedPoemIds] = await Promise.all([
     getUserFavoritedPoems(user.userId),
     getUserFavoritedPoemIds(user.userId),
@@ -24,12 +26,12 @@ export default async function FavoritesPage() {
     <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-zinc-900">我的收藏</h1>
+          <h1 className="text-3xl font-bold text-zinc-900">{t.favorites.title}</h1>
           <p className="mt-2 text-zinc-600">
-            您已收藏 {favoritedPoems.length} 首诗词
+            {t.favorites.count(favoritedPoems.length)}
             {!user.emailVerified && (
               <span className="ml-2 text-sm text-amber-600">
-                （未验证用户上限：{MAX_FAVORITES_UNVERIFIED} 首）
+                {t.common.unverifiedLimit(MAX_FAVORITES_UNVERIFIED)}
               </span>
             )}
           </p>
@@ -51,11 +53,10 @@ export default async function FavoritesPage() {
                 </svg>
                 <div className="flex-1">
                   <p className="text-sm font-medium text-amber-900">
-                    即将达到收藏上限
+                    {t.favorites.limitTitle}
                   </p>
                   <p className="mt-1 text-sm text-amber-700">
-                    您还可以收藏 {MAX_FAVORITES_UNVERIFIED - favoritedPoems.length} 首诗词。
-                    验证邮箱即可解锁无限收藏！
+                    {t.favorites.limitBody(MAX_FAVORITES_UNVERIFIED - favoritedPoems.length)}
                   </p>
                 </div>
               </div>
@@ -65,7 +66,7 @@ export default async function FavoritesPage() {
 
         <Suspense
           fallback={
-            <div className="text-center text-zinc-600">加载中...</div>
+            <div className="text-center text-zinc-600">{t.common.loading}</div>
           }
         >
           {favoritedPoems.length > 0 ? (
@@ -82,16 +83,16 @@ export default async function FavoritesPage() {
           ) : (
             <div className="rounded-lg border border-zinc-200 bg-white p-12 text-center">
               <p className="text-lg text-zinc-600">
-                您还没有收藏任何诗词
+                {t.favorites.empty}
               </p>
               <p className="mt-2 text-sm text-zinc-500">
-                去探索页面发现喜欢的诗词吧
+                {t.favorites.emptyHint}
               </p>
               <Link
                 href="/"
                 className="mt-4 inline-block rounded-lg bg-zinc-900 px-6 py-2 text-white hover:bg-zinc-800"
               >
-                去探索
+                {t.common.explore}
               </Link>
             </div>
           )}

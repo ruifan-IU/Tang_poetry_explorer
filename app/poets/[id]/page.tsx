@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getPoetById } from '@/lib/queries';
+import { getMessages } from '@/lib/locale-server';
 import { PoetIntroduction } from '@/app/components/PoetIntroduction';
 import { SaveCount } from '@/app/components/SaveCount';
 
@@ -9,6 +10,7 @@ type Params = Promise<{ id: string }>;
 export default async function PoetDetailPage(props: { params: Params }) {
   const params = await props.params;
   const poet = await getPoetById(Number(params.id));
+  const t = await getMessages();
 
   if (!poet) {
     notFound();
@@ -24,7 +26,7 @@ export default async function PoetDetailPage(props: { params: Params }) {
             <div className='flex-1'>
               <div className='mb-4 flex items-start justify-between'>
                 <div>
-                  <h1 className='mb-2 text-4xl font-bold text-zinc-900'>
+                  <h1 lang='zh-CN' className='mb-2 text-4xl font-bold text-zinc-900'>
                     {poet.name}
                   </h1>
                 </div>
@@ -42,15 +44,16 @@ export default async function PoetDetailPage(props: { params: Params }) {
         {/* Poems by this poet */}
         <section className='rounded-lg border border-zinc-200 bg-white p-8'>
           <div className='mb-6 flex items-center justify-between'>
-            <h2 className='text-2xl font-semibold text-zinc-900'>代表作品</h2>
+            <h2 className='text-2xl font-semibold text-zinc-900'>
+              {t.poet.works}
+            </h2>
             <p className='text-sm text-zinc-600'>
-              共 {poet.poems.length} 首
-              {poet.poems.length >= 10 && '（显示前10首）'}
+              {t.poet.workCount(poet.poems.length)}
             </p>
           </div>
 
           {poet.poems.length > 0 ? (
-            <div className='space-y-4'>
+            <div lang='zh-CN' className='space-y-4'>
               {poet.poems.map((poem) => (
                 <Link
                   key={poem.id}
@@ -72,7 +75,7 @@ export default async function PoetDetailPage(props: { params: Params }) {
               ))}
             </div>
           ) : (
-            <p className='text-center text-zinc-600'>暂无收录作品</p>
+            <p className='text-center text-zinc-600'>{t.poet.noWorks}</p>
           )}
         </section>
       </div>

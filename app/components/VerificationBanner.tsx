@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useMessages } from './LocaleProvider';
 
 interface VerificationBannerProps {
   userEmail: string;
@@ -10,6 +11,7 @@ export function VerificationBanner({ userEmail }: VerificationBannerProps) {
   const [isResending, setIsResending] = useState(false);
   const [message, setMessage] = useState('');
   const [isDismissed, setIsDismissed] = useState(false);
+  const t = useMessages();
 
   // Check localStorage on mount
   useEffect(() => {
@@ -33,13 +35,13 @@ export function VerificationBanner({ userEmail }: VerificationBannerProps) {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage('验证邮件已重新发送！请检查您的邮箱。');
+        setMessage(t.banner.resent);
       } else {
-        setMessage(data.error || '发送失败，请稍后重试');
+        setMessage(data.error || t.banner.resendFailed);
       }
     } catch (error) {
       console.error('Resend email error:', error);
-      setMessage('发送失败，请稍后重试');
+      setMessage(t.banner.resendFailed);
     } finally {
       setIsResending(false);
     }
@@ -69,9 +71,11 @@ export function VerificationBanner({ userEmail }: VerificationBannerProps) {
             </svg>
             <div className="flex-1">
               <p className="text-sm text-amber-900">
-                <span className="font-medium">请验证您的邮箱</span>
+                <span className="font-medium">{t.banner.title}</span>
                 {' - '}
-                我们已向 <span className="font-medium">{userEmail}</span> 发送了验证邮件
+                {t.banner.sentBefore}
+                <span className="font-medium">{userEmail}</span>
+                {t.banner.sentAfter}
               </p>
               {message && (
                 <p className="text-xs text-amber-700 mt-1">{message}</p>
@@ -84,7 +88,7 @@ export function VerificationBanner({ userEmail }: VerificationBannerProps) {
               disabled={isResending}
               className="text-sm font-medium text-amber-900 hover:text-amber-700 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
             >
-              {isResending ? '发送中...' : '重新发送'}
+              {isResending ? t.banner.sending : t.banner.resend}
             </button>
             <button
               onClick={() => {
@@ -92,7 +96,7 @@ export function VerificationBanner({ userEmail }: VerificationBannerProps) {
                 localStorage.setItem('verification-banner-dismissed', 'true');
               }}
               className="text-amber-600 hover:text-amber-800 p-1"
-              aria-label="关闭"
+              aria-label={t.banner.close}
             >
               <svg
                 className="w-4 h-4"

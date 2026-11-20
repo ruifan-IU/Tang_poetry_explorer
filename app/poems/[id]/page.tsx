@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getPoemById } from '@/lib/queries';
 import { getCurrentUser } from '@/lib/auth';
+import { getMessages } from '@/lib/locale-server';
 import { isPoemFavorited } from '@/lib/favorites';
 import { FavoriteButton } from '@/app/components/FavoriteButton';
 import { SaveCount } from '@/app/components/SaveCount';
@@ -17,6 +18,7 @@ export default async function PoemDetailPage(props: { params: Params }) {
   }
 
   const user = await getCurrentUser();
+  const t = await getMessages();
   const isFavorited = user
     ? await isPoemFavorited(user.userId, poem.id)
     : false;
@@ -33,7 +35,7 @@ export default async function PoemDetailPage(props: { params: Params }) {
         <div className='rounded-lg border border-zinc-200 bg-zinc-100 p-8'>
           {/* Title and Author */}
           <header className='mb-8 border-b border-zinc-200 pb-6'>
-            <h1 className='mb-4 text-4xl font-bold text-zinc-900'>
+            <h1 lang='zh-CN' className='mb-4 text-4xl font-bold text-zinc-900'>
               {poem.title}
             </h1>
             <div className='flex items-center justify-between'>
@@ -42,7 +44,10 @@ export default async function PoemDetailPage(props: { params: Params }) {
                 className='transition-opacity hover:opacity-70'
               >
                 <div>
-                  <p className='text-lg font-medium text-zinc-900 hover:underline'>
+                  <p
+                    lang='zh-CN'
+                    className='text-lg font-medium text-zinc-900 hover:underline'
+                  >
                     {poem.poet.name}
                   </p>
                 </div>
@@ -60,8 +65,13 @@ export default async function PoemDetailPage(props: { params: Params }) {
 
           {/* Content */}
           <section className='mb-8'>
-            <h2 className='mb-4 text-xl font-semibold text-zinc-900'>原文</h2>
-            <div className='whitespace-pre-line font-serif text-2xl leading-loose text-zinc-800'>
+            <h2 className='mb-4 text-xl font-semibold text-zinc-900'>
+              {t.poem.original}
+            </h2>
+            <div
+              lang='zh-CN'
+              className='whitespace-pre-line font-serif text-2xl leading-loose text-zinc-800'
+            >
               {poem.content}
             </div>
           </section>
@@ -69,8 +79,10 @@ export default async function PoemDetailPage(props: { params: Params }) {
           {/* Translation */}
           {translation && (
             <section className='mb-8'>
-              <h2 className='mb-4 text-xl font-semibold text-zinc-900'>译文</h2>
-              <div className='whitespace-pre-line text-zinc-700'>
+              <h2 className='mb-4 text-xl font-semibold text-zinc-900'>
+                {t.poem.translation}
+              </h2>
+              <div lang='zh-CN' className='whitespace-pre-line text-zinc-700'>
                 {translation.content}
               </div>
             </section>
@@ -79,8 +91,10 @@ export default async function PoemDetailPage(props: { params: Params }) {
           {/* Commentary */}
           {commentary && (
             <section className='mb-8'>
-              <h2 className='mb-4 text-xl font-semibold text-zinc-900'>赏析</h2>
-              <div className='whitespace-pre-line text-zinc-700'>
+              <h2 className='mb-4 text-xl font-semibold text-zinc-900'>
+                {t.poem.commentary}
+              </h2>
+              <div lang='zh-CN' className='whitespace-pre-line text-zinc-700'>
                 {commentary.content}
               </div>
             </section>
@@ -89,8 +103,10 @@ export default async function PoemDetailPage(props: { params: Params }) {
           {/* Background */}
           {background && (
             <section className='mb-8'>
-              <h2 className='mb-4 text-xl font-semibold text-zinc-900'>背景</h2>
-              <div className='whitespace-pre-line text-zinc-700'>
+              <h2 className='mb-4 text-xl font-semibold text-zinc-900'>
+                {t.poem.background}
+              </h2>
+              <div lang='zh-CN' className='whitespace-pre-line text-zinc-700'>
                 {background.content}
               </div>
             </section>
@@ -99,8 +115,10 @@ export default async function PoemDetailPage(props: { params: Params }) {
           {/* Tags */}
           {poem.tags.length > 0 && (
             <section>
-              <h2 className='mb-4 text-xl font-semibold text-zinc-900'>标签</h2>
-              <div className='flex flex-wrap gap-2'>
+              <h2 className='mb-4 text-xl font-semibold text-zinc-900'>
+                {t.poem.tags}
+              </h2>
+              <div lang='zh-CN' className='flex flex-wrap gap-2'>
                 {poem.tags.map((tag) => (
                   <span
                     key={tag.id}

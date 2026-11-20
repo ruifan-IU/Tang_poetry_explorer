@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { PoemCard } from './PoemCard';
+import { useMessages } from './LocaleProvider';
 
 type Poem = React.ComponentProps<typeof PoemCard>['poem'];
 
@@ -50,6 +51,7 @@ export function PoemFeed({
   const sentinelRef = useRef<HTMLDivElement>(null);
   // The observer can fire again before the 'loading' state re-renders.
   const loadingRef = useRef(false);
+  const t = useMessages();
 
   const favorited = useMemo(() => new Set(favoritedPoemIds), [favoritedPoemIds]);
   const memorizing = useMemo(() => new Set(memorizingPoemIds), [memorizingPoemIds]);
@@ -101,14 +103,14 @@ export function PoemFeed({
       </div>
 
       <div ref={sentinelRef} className='py-8 text-center text-sm text-zinc-500'>
-        {status === 'loading' && '加载中...'}
-        {status === 'done' && '已经到底了'}
+        {status === 'loading' && t.common.loading}
+        {status === 'done' && t.feed.end}
         {status === 'error' && (
           <button
             onClick={loadMore}
             className='rounded-lg border border-zinc-300 bg-white px-4 py-2 text-zinc-700 hover:bg-zinc-50'
           >
-            加载失败，点击重试
+            {t.feed.loadFailed}
           </button>
         )}
       </div>

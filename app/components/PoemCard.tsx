@@ -27,7 +27,7 @@ type PoemCardProps = {
   isAuthenticated: boolean;
   // Where the card goes when clicked; the poem's own page by default.
   href?: string;
-  // A short label beside the title, e.g. 待复习 on the memorization page.
+  // A short label beside the title, e.g. 待复习 (due) on the memorization page.
   badge?: string;
 };
 
@@ -63,7 +63,8 @@ export function PoemCard({
       <div className='mb-4 flex items-start justify-between gap-4'>
         <div className='flex-1'>
           <h3 className='text-xl font-semibold text-zinc-900'>
-            {poem.title}
+            {/* The poem's own text is Chinese in either interface language. */}
+            <span lang='zh-CN'>{poem.title}</span>
             {badge && (
               <span className='ml-2 inline-block rounded-full bg-purple-100 px-2 py-0.5 align-middle text-xs font-medium text-purple-700'>
                 {badge}
@@ -74,14 +75,19 @@ export function PoemCard({
             onClick={handlePoetClick}
             className='mt-2 text-left hover:underline'
           >
-            <p className='text-sm text-zinc-600'>{poem.poet.name}</p>
+            <p lang='zh-CN' className='text-sm text-zinc-600'>
+              {poem.poet.name}
+            </p>
           </button>
         </div>
         <SaveCount count={stars} />
       </div>
 
       {/* Content Preview */}
-      <div className='mb-4 whitespace-pre-line font-serif text-lg leading-relaxed text-zinc-700'>
+      <div
+        lang='zh-CN'
+        className='mb-4 whitespace-pre-line font-serif text-lg leading-relaxed text-zinc-700'
+      >
         {contentPreview}
         {hasMore && <span className='text-zinc-400'>...</span>}
       </div>
@@ -92,7 +98,10 @@ export function PoemCard({
             is one tag tall, so a tag that would wrap lands on a second line
             that's cut off. Whole tags only -- nowrap keeps a tag's own text
             from breaking onto two lines and showing half a tag. */}
-        <div className='flex h-6 min-w-0 flex-1 flex-wrap gap-2 overflow-hidden'>
+        <div
+          lang='zh-CN'
+          className='flex h-6 min-w-0 flex-1 flex-wrap gap-2 overflow-hidden'
+        >
           {poem.tags.slice(0, 3).map((tag) => (
             <span
               key={tag.name}

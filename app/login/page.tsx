@@ -4,6 +4,7 @@ import { Suspense, useState, FormEvent } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { safeRedirect } from '@/lib/safe-redirect';
+import { useMessages } from '@/app/components/LocaleProvider';
 
 export default function LoginPage() {
   return (
@@ -17,6 +18,7 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = safeRedirect(searchParams.get('redirect'));
+  const t = useMessages();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -41,7 +43,7 @@ function LoginForm() {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || 'An error occurred during login');
+        setError(data.error || t.auth.loginFailed);
         setIsLoading(false);
         return;
       }
@@ -49,7 +51,7 @@ function LoginForm() {
       router.push(redirectTo);
       router.refresh();
     } catch (err) {
-      setError('An unexpected error occurred');
+      setError(t.auth.unexpectedError);
       setIsLoading(false);
     }
   };
@@ -59,7 +61,7 @@ function LoginForm() {
       <div className='w-full max-w-md'>
         <div className='rounded-lg border border-zinc-200 bg-white p-8 shadow-sm'>
           <h1 className='mb-6 text-center text-3xl font-bold text-zinc-900'>
-            登录
+            {t.auth.loginTitle}
           </h1>
 
           {error && (
@@ -74,7 +76,7 @@ function LoginForm() {
                 htmlFor='email'
                 className='mb-1 block text-sm font-medium text-zinc-700'
               >
-                邮箱
+                {t.auth.email}
               </label>
               <input
                 id='email'
@@ -94,7 +96,7 @@ function LoginForm() {
                 htmlFor='password'
                 className='mb-1 block text-sm font-medium text-zinc-700'
               >
-                密码
+                {t.auth.password}
               </label>
               <input
                 id='password'
@@ -105,7 +107,7 @@ function LoginForm() {
                   setFormData({ ...formData, password: e.target.value })
                 }
                 className='w-full rounded-lg border border-zinc-300 bg-white px-4 py-2 text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-500 focus:outline-none'
-                placeholder='请输入密码'
+                placeholder={t.auth.passwordPlaceholder}
               />
             </div>
 
@@ -114,17 +116,17 @@ function LoginForm() {
               disabled={isLoading}
               className='w-full rounded-lg bg-zinc-900 px-4 py-2 font-medium text-white transition-colors hover:bg-zinc-800 disabled:opacity-50'
             >
-              {isLoading ? '登录中...' : '登录'}
+              {isLoading ? t.auth.loggingIn : t.auth.loginTitle}
             </button>
           </form>
 
           <div className='mt-6 text-center text-sm text-zinc-600'>
-            还没有账号?{' '}
+            {t.auth.noAccount}{' '}
             <Link
               href='/signup'
               className='font-medium text-zinc-900 hover:underline'
             >
-              立即注册
+              {t.auth.signupNow}
             </Link>
           </div>
         </div>

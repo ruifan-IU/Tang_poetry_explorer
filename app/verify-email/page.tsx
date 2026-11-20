@@ -3,19 +3,28 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useMessages } from '@/app/components/LocaleProvider';
+import type { Messages } from '@/lib/messages';
+
+// What to say below the heading: one of our messages, by key, so it
+// follows a change of language; or the API's own error text.
+type Message =
+  | { key: keyof Pick<Messages['verify'], 'missingToken' | 'failed' | 'error' | 'successBody'> }
+  | { text: string };
 
 export default function VerifyEmailPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const t = useMessages();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState<Message>({ key: 'failed' });
 
   useEffect(() => {
     const token = searchParams.get('token');
 
     if (!token) {
       setStatus('error');
-      setMessage('缺少验证令牌');
+      setMessage({ key: 'missingToken' });
       return;
     }
 
@@ -27,7 +36,7 @@ export default function VerifyEmailPage() {
 
         if (response.ok) {
           setStatus('success');
-          setMessage(data.message || '邮箱验证成功！');
+          setMessage({ key: 'successBody' });
 
           // Clear the banner dismissed flag since email is now verified
           localStorage.removeItem('verification-banner-dismissed');
@@ -38,17 +47,19 @@ export default function VerifyEmailPage() {
           }, 3000);
         } else {
           setStatus('error');
-          setMessage(data.error || '验证失败');
+          setMessage(data.error ? { text: data.error } : { key: 'failed' });
         }
       } catch (error) {
         console.error('Verification error:', error);
         setStatus('error');
-        setMessage('验证过程中出错，请稍后重试');
+        setMessage({ key: 'error' });
       }
     };
 
     verifyEmail();
   }, [searchParams, router]);
+
+  const messageText = 'key' in message ? t.verify[message.key] : message.text;
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
@@ -57,10 +68,10 @@ export default function VerifyEmailPage() {
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-zinc-900 mx-auto mb-4"></div>
             <h1 className="text-2xl font-bold text-zinc-900 mb-2">
-              验证中...
+              {t.verify.verifying}
             </h1>
             <p className="text-zinc-600">
-              正在验证您的邮箱，请稍候
+              {t.verify.verifyingBody}
             </p>
           </div>
         )}
@@ -83,19 +94,19 @@ export default function VerifyEmailPage() {
               </svg>
             </div>
             <h1 className="text-2xl font-bold text-zinc-900 mb-2">
-              验证成功！
+              {t.verify.successTitle}
             </h1>
             <p className="text-zinc-600 mb-6">
-              {message}
+              {messageText}
             </p>
             <p className="text-sm text-zinc-500 mb-4">
-              3秒后将自动跳转到首页...
+              {t.verify.redirecting}
             </p>
             <Link
               href="/"
               className="inline-block bg-zinc-900 text-white px-6 py-2 rounded-lg hover:bg-zinc-800 transition-colors"
             >
-              立即返回首页
+              {t.verify.homeNow}
             </Link>
           </div>
         )}
@@ -118,23 +129,23 @@ export default function VerifyEmailPage() {
               </svg>
             </div>
             <h1 className="text-2xl font-bold text-zinc-900 mb-2">
-              验证失败
+              {t.verify.failed}
             </h1>
             <p className="text-zinc-600 mb-6">
-              {message}
+              {messageText}
             </p>
             <div className="space-y-3">
               <Link
                 href="/"
                 className="block bg-zinc-900 text-white px-6 py-2 rounded-lg hover:bg-zinc-800 transition-colors"
               >
-                返回首页
+                {t.verify.home}
               </Link>
               <Link
                 href="/signup"
                 className="block border border-zinc-300 text-zinc-700 px-6 py-2 rounded-lg hover:bg-zinc-50 transition-colors"
               >
-                重新注册
+                {t.verify.signupAgain}
               </Link>
             </div>
           </div>

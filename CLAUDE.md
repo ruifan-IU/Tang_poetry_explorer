@@ -101,6 +101,17 @@ server renders the first page and the client fetches the rest from `pagesUrl` wi
   reshuffle it); it's keyed so new filters start a new list. `HomeLink` reloads the page when
   clicked on the plain home page, to reshuffle.
 
+### Interface language (i18n)
+
+The interface is in Chinese or English; the poems, poets and tags are always Chinese. **All UI text
+lives in `lib/messages.ts`** (`zh` defines the shape, `en: Messages` must match it) — don't hard-code
+strings in components. Server Components call `await getMessages()` (`lib/locale-server.ts`), Client
+Components `useMessages()` (`app/components/LocaleProvider.tsx`). The locale comes from the `locale`
+cookie (set by `LanguageSwitcher`, which then `router.refresh()`es), else from Accept-Language
+(`localeFromAcceptLanguage` in `lib/locale.ts`). `<html lang>` follows the interface, so elements that
+show poem data (titles, poet names, text, tags, notes) carry `lang='zh-CN'` themselves. Not translated:
+emails (`lib/email.ts`, sent by the cron with no request) and API error strings (English).
+
 ### Reader settings and theming
 
 Poem font (`lib/poem-fonts.ts`, `FontSwitcher`) and appearance (`lib/theme.ts`, `ThemeSwitcher`)

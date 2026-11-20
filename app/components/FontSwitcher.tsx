@@ -7,6 +7,7 @@ import {
   type PoemFontId,
 } from '@/lib/poem-fonts';
 import { NavMenu, NavMenuOption } from './NavMenu';
+import { useMessages } from './LocaleProvider';
 
 // Outside the component: these write to the page and the cookie jar, which
 // only ever happens in response to a click, never during render.
@@ -23,11 +24,12 @@ function applyPoemFont(id: PoemFontId) {
  */
 export function FontSwitcher({ initialFont }: { initialFont: PoemFontId }) {
   const [font, setFont] = useState(initialFont);
+  const t = useMessages();
 
   return (
-    <NavMenu label='字体'>
+    <NavMenu label={t.nav.font}>
       {(close) =>
-        POEM_FONTS.map(({ id, label }) => (
+        POEM_FONTS.map((id) => (
           <NavMenuOption
             key={id}
             selected={font === id}
@@ -40,7 +42,7 @@ export function FontSwitcher({ initialFont }: { initialFont: PoemFontId }) {
             data-poem-font={id}
             className='font-serif'
           >
-            {label}
+            {t.fonts[id]}
           </NavMenuOption>
         ))
       }

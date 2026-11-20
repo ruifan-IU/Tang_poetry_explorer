@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { Cactus_Classical_Serif, Long_Cang, Ma_Shan_Zheng, Noto_Serif_SC } from "next/font/google";
+import { LocaleProvider } from "./components/LocaleProvider";
 import { Navbar } from "./components/Navbar";
 import { PageBackground } from "./components/PageBackground";
 import { randomBackground } from "@/lib/backgrounds";
 import { DEFAULT_POEM_FONT, POEM_FONT_COOKIE, isPoemFont } from "@/lib/poem-fonts";
 import { DEFAULT_THEME, THEME_COOKIE, isTheme } from "@/lib/theme";
+import { htmlLang } from "@/lib/locale";
+import { getLocale, getMessages } from "@/lib/locale-server";
 // LXGW WenKai GB (霞鹜文楷) isn't on Google Fonts; this package ships it
 // split into unicode-range chunks. Regular weight only.
 import "lxgw-wenkai-gb-web/lxgwwenkaigb-regular/result.css";
@@ -39,10 +42,10 @@ const longCang = Long_Cang({
   preload: false,
 });
 
-export const metadata: Metadata = {
-  title: "唐诗博览",
-  description: "阅读、收藏、背诵全唐诗",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getMessages();
+  return { title: t.brand, description: t.description };
+}
 
 export default async function RootLayout({
   children,
@@ -61,13 +64,17 @@ export default async function RootLayout({
   // A new painting on each page load; the layout stays mounted across
   // in-app navigation, so it's the same one until the next load.
   const background = randomBackground();
+  // The interface language (lib/locale.ts), in the server HTML like the rest.
+  const locale = await getLocale();
 
-  // zh-CN picks Simplified Chinese glyph forms for the Han characters Chinese
-  // shares with Japanese and Korean, and tells screen readers and search
-  // engines the page language.
+  // lang tells screen readers and search engines the interface language.
+  // The poems, poets and tags are Chinese whatever it is, so the elements
+  // showing them carry lang="zh-CN" themselves -- which also makes the
+  // browser pick Simplified Chinese glyph forms for the Han characters
+  // Chinese shares with Japanese and Korean.
   return (
     <html
-      lang="zh-CN"
+      lang={htmlLang(locale)}
       data-poem-font={poemFont}
       data-theme={theme === "system" ? undefined : theme}
       className={[notoSerifSC, cactusClassicalSerif, maShanZheng, longCang]
@@ -75,9 +82,11 @@ export default async function RootLayout({
         .join(" ")}
     >
       <body className="antialiased">
-        <PageBackground background={background} />
-        <Navbar poemFont={poemFont} theme={theme} />
-        {children}
+        <LocaleProvider locale={locale}>
+          <PageBackground background={background} />
+          <Navbar poemFont={poemFont} theme={theme} />
+          {children}
+        </LocaleProvider>
       </body>
     </html>
   );

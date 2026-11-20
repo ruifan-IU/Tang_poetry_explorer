@@ -2,11 +2,13 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useTransition, FormEvent } from 'react';
+import { useMessages } from './LocaleProvider';
 
 export function SearchBar() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
+  const t = useMessages();
 
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
 
@@ -40,7 +42,7 @@ export function SearchBar() {
       <div className='relative'>
         <input
           type='text'
-          placeholder='搜索诗词标题或内容...'
+          placeholder={t.search.placeholder}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           disabled={isPending}
@@ -54,7 +56,7 @@ export function SearchBar() {
               disabled={isPending}
               className='rounded px-2 py-1 text-xs text-zinc-500 hover:text-zinc-700'
             >
-              清除
+              {t.search.clear}
             </button>
           )}
           <button
@@ -62,7 +64,7 @@ export function SearchBar() {
             disabled={isPending}
             className='rounded bg-zinc-900 px-3 py-1 text-xs text-white hover:bg-zinc-800 disabled:opacity-50'
           >
-            搜索
+            {t.search.submit}
           </button>
         </div>
       </div>
