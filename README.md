@@ -1,5 +1,8 @@
 # 唐诗博览 · Tang Poetry Explorer
 
+**Live: [tang.ruifan.dev](https://tang.ruifan.dev)** (English or Chinese
+interface; the button in the navbar switches)
+
 A web app for reading, collecting and memorizing Tang dynasty poetry: all
 55,896 poems of the 全唐诗 (*Complete Tang Poems*), ranked by how well known
 they are. Readers can browse and search the collection, save poems, and learn
@@ -99,8 +102,8 @@ All `prisma:*` scripts read `.env`, not `.env.local`.
 | `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` | for Docker | credentials for the `db` service in `compose.yaml` |
 | `JWT_SECRET` | yes | signs the auth cookie. There is no default: generate one with `openssl rand -base64 32` |
 | `CRON_SECRET` | in production | bearer token for `/api/cron/daily-review`. Without it, the route refuses every request |
-| `RESEND_API_KEY` | for email | verification and review-reminder emails |
-| `FROM_EMAIL` | no | sender address (default `onboarding@resend.dev`, which only delivers to your own Resend account; send to anyone by verifying a domain in Resend) |
+| `RESEND_API_KEY` | yes | verification and review-reminder emails. The Resend client is created when `lib/email.ts` loads, so sign-up and the cron fail without it |
+| `FROM_EMAIL` | in production | sender, e.g. `Tang Poetry Explorer <noreply@mail.example.com>`, on a domain verified in Resend. The default, `onboarding@resend.dev`, only delivers to your own Resend account, which is fine for development |
 | `APP_URL` | in production | base URL for links in emails (default `http://localhost:3000`) |
 | `OPENAI_API_KEY` | no | only for the `scripts/semantic_search.py` experiment |
 
@@ -239,7 +242,8 @@ spaced-repetition data model).
 
 ## Deployment
 
-The app runs on Vercel with a Neon Postgres database.
+The app runs on Vercel with a Neon Postgres database, at a custom domain
+whose DNS is on Cloudflare.
 
 1. Import the repo into Vercel. The build runs `prisma generate && next build`.
 2. Add Neon from Vercel's Storage tab, which sets `DATABASE_URL` (pooled) and
@@ -254,6 +258,16 @@ The app runs on Vercel with a Neon Postgres database.
    DATABASE_URL='<unpooled url>' npx prisma migrate deploy
    DATABASE_URL='<unpooled url>' npm run prisma:seed
    ```
+
+5. Add the domain (`tang.ruifan.dev`) in the project's Domains settings and
+   create the CNAME it asks for in Cloudflare, set to **DNS only**: with
+   Cloudflare's proxy on, Vercel can't issue the HTTPS certificate reliably.
+   Set `APP_URL` to the domain.
+6. To email any address, verify a sending subdomain (`mail.ruifan.dev`) in
+   Resend: add its SPF (`TXT` and `MX` on `send.mail`) and DKIM
+   (`resend._domainkey.mail`) records in Cloudflare, plus a DMARC record
+   (`_dmarc`), then set `FROM_EMAIL` to an address on it.
+7. Redeploy: environment variables only apply to new deployments.
 
 `vercel.json` schedules `/api/cron/daily-review` every day at 02:00 UTC, and
 Vercel sends `CRON_SECRET` as its bearer token.
