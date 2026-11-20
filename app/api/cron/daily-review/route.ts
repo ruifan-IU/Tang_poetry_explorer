@@ -98,8 +98,13 @@ async function sendReminderEmails() {
     )
   );
 
-  const succeeded = results.filter((r) => r.status === 'fulfilled').length;
-  const failed = results.filter((r) => r.status === 'rejected').length;
+  // sendReviewReminderEmail reports a failed send as { success: false }
+  // rather than throwing (the Resend SDK returns its errors), so a send only
+  // counts when it resolved *and* succeeded.
+  const succeeded = results.filter(
+    (r) => r.status === 'fulfilled' && r.value.success,
+  ).length;
+  const failed = results.length - succeeded;
 
   return { usersNotified: succeeded, failed };
 }
