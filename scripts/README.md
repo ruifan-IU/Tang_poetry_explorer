@@ -1,6 +1,6 @@
 # Data scripts
 
-These scripts build the poetry dataset for Chinese Poetry Explorer. The current
+These scripts build the poetry dataset for Tang Poetry Explorer. The current
 pipeline covers **Tang poetry**. Its sources are:
 
 - [chinese-poetry/chinese-poetry](https://github.com/chinese-poetry/chinese-poetry):

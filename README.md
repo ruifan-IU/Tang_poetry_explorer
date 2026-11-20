@@ -1,4 +1,4 @@
-# 唐诗博览 · Chinese Poetry Explorer
+# 唐诗博览 · Tang Poetry Explorer
 
 A web app for reading, collecting and memorizing Tang dynasty poetry: all
 55,896 poems of the 全唐诗 (*Complete Tang Poems*), ranked by how well known
@@ -57,8 +57,8 @@ classic anthologies and reader votes. See [Data](#data).
 ### Setup
 
 ```bash
-git clone https://github.com/ruifan-IU/chinese_poetry_explorer.git
-cd chinese_poetry_explorer
+git clone https://github.com/ruifan-IU/Tang_poetry_explorer.git
+cd Tang_poetry_explorer
 npm install
 cp .env.example .env        # then fill in the variables below
 ```

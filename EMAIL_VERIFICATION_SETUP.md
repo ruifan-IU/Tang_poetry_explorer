@@ -2,7 +2,7 @@
 
 ## What We Built
 
-We've implemented a complete email verification system for your Chinese Poetry Explorer app using Resend. Here's what was added:
+We've implemented a complete email verification system for your Tang Poetry Explorer app using Resend. Here's what was added:
 
 ### 1. Database Changes
 - Added `emailVerified` (boolean), `verificationToken`, and `tokenExpiry` fields to User model
