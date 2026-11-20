@@ -4,9 +4,16 @@ import { getDegradedMasteryLevel } from '@/lib/spaced-repetition';
 import { sendReviewReminderEmail } from '@/lib/email';
 
 export async function GET(request: NextRequest) {
-  // Verify the request is from our scheduler, not a random visitor
+  // Verify the request is from our scheduler, not a random visitor. Without
+  // a secret, refuse everything: comparing against `Bearer ${undefined}`
+  // would accept anyone who sends the literal header "Bearer undefined".
+  const secret = process.env.CRON_SECRET;
+  if (!secret) {
+    console.error('CRON_SECRET is not set; refusing the daily-review cron');
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
   const authHeader = request.headers.get('Authorization');
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (authHeader !== `Bearer ${secret}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
