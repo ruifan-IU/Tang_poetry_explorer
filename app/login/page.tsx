@@ -84,7 +84,7 @@ function LoginForm() {
                 onChange={(e) =>
                   setFormData({ ...formData, email: e.target.value })
                 }
-                className='w-full rounded-lg border border-zinc-300 px-4 py-2 focus:border-zinc-500 focus:outline-none'
+                className='w-full rounded-lg border border-zinc-300 bg-white px-4 py-2 text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-500 focus:outline-none'
                 placeholder='your.email@example.com'
               />
             </div>
@@ -104,7 +104,7 @@ function LoginForm() {
                 onChange={(e) =>
                   setFormData({ ...formData, password: e.target.value })
                 }
-                className='w-full rounded-lg border border-zinc-300 px-4 py-2 focus:border-zinc-500 focus:outline-none'
+                className='w-full rounded-lg border border-zinc-300 bg-white px-4 py-2 text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-500 focus:outline-none'
                 placeholder='请输入密码'
               />
             </div>

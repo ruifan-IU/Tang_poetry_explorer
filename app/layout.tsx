@@ -5,6 +5,7 @@ import { Navbar } from "./components/Navbar";
 import { PageBackground } from "./components/PageBackground";
 import { randomBackground } from "@/lib/backgrounds";
 import { DEFAULT_POEM_FONT, POEM_FONT_COOKIE, isPoemFont } from "@/lib/poem-fonts";
+import { DEFAULT_THEME, THEME_COOKIE, isTheme } from "@/lib/theme";
 // LXGW WenKai GB (霞鹜文楷) isn't on Google Fonts; this package ships it
 // split into unicode-range chunks. Regular weight only.
 import "lxgw-wenkai-gb-web/lxgwwenkaigb-regular/result.css";
@@ -50,8 +51,13 @@ export default async function RootLayout({
 }>) {
   // The reader's poem font, applied in the server HTML so the page never
   // flashes the default font first.
-  const saved = (await cookies()).get(POEM_FONT_COOKIE)?.value;
-  const poemFont = isPoemFont(saved) ? saved : DEFAULT_POEM_FONT;
+  const cookieStore = await cookies();
+  const savedFont = cookieStore.get(POEM_FONT_COOKIE)?.value;
+  const poemFont = isPoemFont(savedFont) ? savedFont : DEFAULT_POEM_FONT;
+  // Light or dark, likewise in the server HTML so the page never flashes
+  // the other one; 'system' sets no attribute and CSS follows the OS.
+  const savedTheme = cookieStore.get(THEME_COOKIE)?.value;
+  const theme = isTheme(savedTheme) ? savedTheme : DEFAULT_THEME;
   // A new painting on each page load; the layout stays mounted across
   // in-app navigation, so it's the same one until the next load.
   const background = randomBackground();
@@ -63,13 +69,14 @@ export default async function RootLayout({
     <html
       lang="zh-CN"
       data-poem-font={poemFont}
+      data-theme={theme === "system" ? undefined : theme}
       className={[notoSerifSC, cactusClassicalSerif, maShanZheng, longCang]
         .map((font) => font.variable)
         .join(" ")}
     >
       <body className="antialiased">
         <PageBackground background={background} />
-        <Navbar poemFont={poemFont} />
+        <Navbar poemFont={poemFont} theme={theme} />
         {children}
       </body>
     </html>

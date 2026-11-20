@@ -1,8 +1,21 @@
 @import "tailwindcss";
+@import "./dark-palette.css";
 
+/* Light or dark: the system's choice, unless the reader picked one in the
+   外观 menu (ThemeSwitcher), which the root layout sets as data-theme on
+   <html>. color-scheme picks the side of every light-dark() colour -- all
+   of Tailwind's palette, in dark-palette.css -- and styles the browser's
+   own controls (scrollbars, autofill) to match. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light dark;
+  --background: light-dark(#ffffff, oklch(14.1% 0.005 285.823)); /* zinc-950 */
+  --foreground: light-dark(#171717, #ededed);
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -45,13 +58,6 @@
 [data-poem-font="longcang"] {
   --poem-font: var(--font-long-cang), "LXGW WenKai GB",
     var(--font-noto-serif-sc), serif;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {

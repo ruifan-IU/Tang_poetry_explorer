@@ -2,13 +2,21 @@ import { Suspense } from 'react';
 import Link from 'next/link';
 import { getCurrentUser } from '@/lib/auth';
 import type { PoemFontId } from '@/lib/poem-fonts';
+import type { ThemeId } from '@/lib/theme';
 import { FontSwitcher } from './FontSwitcher';
+import { ThemeSwitcher } from './ThemeSwitcher';
 import { HomeLink } from './HomeLink';
 import { NavSearch } from './NavSearch';
 import { UserMenu } from './UserMenu';
 import { VerificationBanner } from './VerificationBanner';
 
-export async function Navbar({ poemFont }: { poemFont: PoemFontId }) {
+export async function Navbar({
+  poemFont,
+  theme,
+}: {
+  poemFont: PoemFontId;
+  theme: ThemeId;
+}) {
   const user = await getCurrentUser();
 
   return (
@@ -36,6 +44,7 @@ export async function Navbar({ poemFont }: { poemFont: PoemFontId }) {
             关于
           </Link>
           <FontSwitcher initialFont={poemFont} />
+          <ThemeSwitcher initialTheme={theme} />
           {/* Shown signed out too, so readers can find these features; the
               login page sends them on to the page once they've signed in. */}
           <Link
