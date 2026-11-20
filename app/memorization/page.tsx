@@ -132,14 +132,12 @@ export default async function MemorizationPage(props: {
 
         {memorizations.length > 0 ? (
           <div className='flex flex-col gap-8 lg:flex-row lg:items-start'>
-            {/* Left: 待复习 and the mastery levels; each card picks the list
-                shown on the right. A plain stack from lg up, a grid above
-                the list on smaller screens. */}
+            {/* Left: 待复习, then the mastery levels under their heading;
+                each card picks the list shown on the right. A plain stack
+                from lg up; above the list on smaller screens, with the
+                levels in a grid. */}
             <aside className='lg:sticky lg:top-24 lg:w-60 lg:shrink-0'>
-              <h2 className='mb-4 text-xl font-semibold text-zinc-900'>
-                {t.memorization.levels}
-              </h2>
-              <nav className='grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-1'>
+              <nav>
                 <ListCard
                   href='/memorization'
                   label={t.memorization.due}
@@ -147,16 +145,21 @@ export default async function MemorizationPage(props: {
                   isSelected={selectedLevel === null}
                   className='bg-purple-100 text-purple-800'
                 />
-                {Object.entries(masteryLevelConfig).map(([key, config]) => (
-                  <ListCard
-                    key={key}
-                    href={`/memorization?level=${key}`}
-                    label={t.mastery[key as MasteryLevel]}
-                    count={stats.byMasteryLevel[key] || 0}
-                    isSelected={key === selectedLevel}
-                    className={config.color}
-                  />
-                ))}
+                <h2 className='mb-4 mt-6 text-xl font-semibold text-zinc-900'>
+                  {t.memorization.levels}
+                </h2>
+                <div className='grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-1'>
+                  {Object.entries(masteryLevelConfig).map(([key, config]) => (
+                    <ListCard
+                      key={key}
+                      href={`/memorization?level=${key}`}
+                      label={t.mastery[key as MasteryLevel]}
+                      count={stats.byMasteryLevel[key] || 0}
+                      isSelected={key === selectedLevel}
+                      className={config.color}
+                    />
+                  ))}
+                </div>
               </nav>
             </aside>
 

@@ -49,6 +49,11 @@ export async function Navbar({
           <FontSwitcher initialFont={poemFont} />
           <ThemeSwitcher initialTheme={theme} />
           <LanguageSwitcher />
+          {/* Reading settings on the left, the reader's own pages and
+              account on the right. Decorative, so screen readers skip it. */}
+          <span aria-hidden className='text-zinc-300'>
+            |
+          </span>
           {/* Shown signed out too, so readers can find these features; the
               login page sends them on to the page once they've signed in. */}
           <Link
