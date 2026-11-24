@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { JWTPayload } from '@/lib/auth';
 import { useMessages } from './LocaleProvider';
+import { LogoutButton } from './LogoutButton';
 
 interface UserMenuProps {
   user: JWTPayload;
@@ -30,19 +31,6 @@ export function UserMenu({ user }: UserMenuProps) {
       };
     }
   }, [isOpen]);
-
-  const handleLogout = async () => {
-    try {
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-      });
-
-      router.push('/');
-      router.refresh();
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
-  };
 
   return (
     <div className='relative' ref={menuRef}>
@@ -89,12 +77,7 @@ export function UserMenu({ user }: UserMenuProps) {
           >
             {t.nav.myFavorites}
           </button>
-          <button
-            onClick={handleLogout}
-            className='w-full px-3 py-2 text-left text-sm text-zinc-700 transition-colors hover:bg-zinc-50'
-          >
-            {t.nav.logout}
-          </button>
+          <LogoutButton className='w-full px-3 py-2 text-left text-sm text-zinc-700 transition-colors hover:bg-zinc-50' />
         </div>
       )}
     </div>

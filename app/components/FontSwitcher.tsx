@@ -6,7 +6,7 @@ import {
   POEM_FONT_COOKIE,
   type PoemFontId,
 } from '@/lib/poem-fonts';
-import { NavMenu, NavMenuOption } from './NavMenu';
+import { NavMenu, NavMenuOption, NavMenuSection } from './NavMenu';
 import { useMessages } from './LocaleProvider';
 
 // Outside the component: these write to the page and the cookie jar, which
@@ -22,12 +22,20 @@ function applyPoemFont(id: PoemFontId) {
  * and is saved in a cookie, so the server renders the next page with it and
  * there's no flash of the default font.
  */
-export function FontSwitcher({ initialFont }: { initialFont: PoemFontId }) {
+export function FontSwitcher({
+  initialFont,
+  inline = false,
+}: {
+  initialFont: PoemFontId;
+  /** Options laid out in place (the hamburger panel), not a dropdown. */
+  inline?: boolean;
+}) {
   const [font, setFont] = useState(initialFont);
   const t = useMessages();
+  const Menu = inline ? NavMenuSection : NavMenu;
 
   return (
-    <NavMenu label={t.nav.font}>
+    <Menu label={t.nav.font}>
       {(close) =>
         POEM_FONTS.map((id) => (
           <NavMenuOption
@@ -46,6 +54,6 @@ export function FontSwitcher({ initialFont }: { initialFont: PoemFontId }) {
           </NavMenuOption>
         ))
       }
-    </NavMenu>
+    </Menu>
   );
 }

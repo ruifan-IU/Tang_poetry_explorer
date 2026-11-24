@@ -56,6 +56,27 @@ export function NavMenu({
   );
 }
 
+/**
+ * The same options as a NavMenu, laid out inline under a small heading: for
+ * the hamburger panel on small screens, where a dropdown inside a dropdown
+ * would be awkward. Takes the same props, so a switcher can use either.
+ */
+export function NavMenuSection({
+  label,
+  children,
+}: {
+  label: string;
+  children: (close: () => void) => React.ReactNode;
+}) {
+  return (
+    <div role='group' aria-label={label}>
+      <p className='px-3 pb-1 text-xs font-medium text-zinc-500'>{label}</p>
+      {/* Nothing to close: the options stay in view after a pick. */}
+      {children(() => {})}
+    </div>
+  );
+}
+
 /** One option in a NavMenu, with a ✓ when it's the current choice. */
 export function NavMenuOption({
   selected,

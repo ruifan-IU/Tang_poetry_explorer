@@ -32,6 +32,7 @@ const zh = {
     signup: '注册',
     myFavorites: '我的收藏',
     logout: '退出登录',
+    menu: '菜单',
   },
   fonts: {
     noto: '思源宋体',
@@ -235,6 +236,7 @@ const en: Messages = {
     signup: 'Sign up',
     myFavorites: 'My saved poems',
     logout: 'Log out',
+    menu: 'Menu',
   },
   fonts: {
     noto: 'Noto Serif SC',

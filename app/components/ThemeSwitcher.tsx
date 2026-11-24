@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { THEMES, THEME_COOKIE, type ThemeId } from '@/lib/theme';
-import { NavMenu, NavMenuOption } from './NavMenu';
+import { NavMenu, NavMenuOption, NavMenuSection } from './NavMenu';
 import { useMessages } from './LocaleProvider';
 
 // Outside the component, like applyPoemFont: only ever runs on a click.
@@ -18,12 +18,20 @@ function applyTheme(id: ThemeId) {
  * once and is saved in a cookie, so the server renders the next page in it
  * (no flash of the wrong colours) -- the same arrangement as FontSwitcher.
  */
-export function ThemeSwitcher({ initialTheme }: { initialTheme: ThemeId }) {
+export function ThemeSwitcher({
+  initialTheme,
+  inline = false,
+}: {
+  initialTheme: ThemeId;
+  /** Options laid out in place (the hamburger panel), not a dropdown. */
+  inline?: boolean;
+}) {
   const [theme, setTheme] = useState(initialTheme);
   const t = useMessages();
+  const Menu = inline ? NavMenuSection : NavMenu;
 
   return (
-    <NavMenu label={t.nav.theme}>
+    <Menu label={t.nav.theme}>
       {(close) =>
         THEMES.map((id) => (
           <NavMenuOption
@@ -39,6 +47,6 @@ export function ThemeSwitcher({ initialTheme }: { initialTheme: ThemeId }) {
           </NavMenuOption>
         ))
       }
-    </NavMenu>
+    </Menu>
   );
 }
