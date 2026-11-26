@@ -57,16 +57,24 @@ export function PoemCard({
   return (
     <Link
       href={href ?? `/poems/${poem.id}`}
-      className='block rounded-lg border border-zinc-200 bg-zinc-100 p-6 transition-shadow hover:shadow-lg'
+      // min-w-0: as a grid item the card would otherwise grow to fit its
+      // one-line title instead of letting the title be cut off.
+      className='block min-w-0 rounded-lg border border-zinc-200 bg-zinc-100 p-6 transition-shadow hover:shadow-lg'
     >
       {/* Header */}
       <div className='mb-4 flex items-start justify-between gap-4'>
-        <div className='flex-1'>
-          <h3 className='text-xl font-semibold text-zinc-900'>
-            {/* The poem's own text is Chinese in either interface language. */}
-            <span lang='zh-CN'>{poem.title}</span>
+        {/* min-w-0 lets this column shrink below its content's width, so a
+            long title is cut off with … rather than pushing the save count out. */}
+        <div className='min-w-0 flex-1'>
+          <h3 className='flex items-center text-xl font-semibold text-zinc-900'>
+            {/* The poem's own text is Chinese in either interface language.
+                One line; hover shows the whole title. The badge doesn't
+                shrink, so it stays visible beside a cut-off title. */}
+            <span lang='zh-CN' title={poem.title} className='truncate'>
+              {poem.title}
+            </span>
             {badge && (
-              <span className='ml-2 inline-block rounded-full bg-purple-100 px-2 py-0.5 align-middle text-xs font-medium text-purple-700'>
+              <span className='ml-2 shrink-0 rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-700'>
                 {badge}
               </span>
             )}
